@@ -102,7 +102,6 @@ function janRuneInvestmentForRow(row){
   return Math.min(JAN_RUNE_INV[row]||0,Math.max(0,(TMAX[row]||999)-(INV[row]||0)));
 }
 function appliedTraitInvestment(row){return (INV[row]||0)+janRuneInvestmentForRow(row);}
-const AUTO_INVEST_EXCLUDED_ROWS=new Set([45,87]);
 const ENCHANT_INPUT_IDS=['enchAD','enchCRI','enchUA','enchTD','enchSR','enchHR'];
 const ENCHANT_INPUT_ID_SET=new Set(ENCHANT_INPUT_IDS);
 
@@ -1309,18 +1308,8 @@ function bindDamageBoardSwitchEvents(){
 }
 /* ── 10 · 특성 보드·투자·최적화 ── */
 const OPTIMIZATION_TIERS=TIERS;
-// 화면/수동 투자/일괄 투자/초기화가 같은 활성 조건을 사용한다. 저장된 INV에는 손대지 않는다.
+// 게임 모드에 따른 특성 입력 제한을 두지 않는다. 기존 효과 계산 조건은 그대로 유지한다.
 /* 10-A · 특성 표시·투자 가능 상태 */
-function isTraitCurrentlyInvestable(row){
-  if(row===45 || row===87) return isCoopActive();
-  if(row===131 || row===132) return isAbyssDifficulty();
-  return true;
-}
-function traitUnavailableReason(row){
-  if(row===45 || row===87) return '개인전 미적용';
-  if(row===131 || row===132) return '어비스 전용';
-  return '';
-}
 // 펼침 여부는 화면 상태로만 관리하며 프리셋 데이터에는 저장하지 않는다.
 const expandedTraitTiers=new Set();
 // 입력 요소를 DOM에 그대로 둔 채 높이만 애니메이션으로 전환한다.
@@ -1363,7 +1352,7 @@ function updateTraits(){
   const janRuneTargets=janRuneConfig.scope==='J2'?JAN_RUNE_J2_ROWS:JAN_RUNE_J1_ROWS;
   body.innerHTML=TIERS.map((tier,tierIndex)=>{
     const tierTraits=TRAITS.filter(t=>t[2]===tier && t[0]!==116);
-    const eligibleTierTraits=tierTraits.filter(t=>isTraitCurrentlyInvestable(t[0]));
+    const eligibleTierTraits=tierTraits;
     const tierInvested=eligibleTierTraits.reduce((sum,t)=>sum+(INV[t[0]]||0),0);
     const tierMaximum=eligibleTierTraits.reduce((sum,t)=>sum+(TMAX[t[0]]||999),0);
     const tierMastered=eligibleTierTraits.length>0 && eligibleTierTraits.every(t=>(INV[t[0]]||0)>=(TMAX[t[0]]||999));
@@ -1373,8 +1362,6 @@ function updateTraits(){
     const rows=tierTraits.map((t,index)=>{
       const [row,name,,type,rate]=t;
       const n=INV[row]||0, mx=TMAX[row]||999;
-      const investable=isTraitCurrentlyInvestable(row);
-      const unavailableReason=investable?'':traitUnavailableReason(row);
       const janFree=janRuneInvestmentForRow(row);
       const showJanRune=janRuneConfig.normal>0 && janRuneTargets.includes(row);
       const isMax=n>=mx;
@@ -1382,24 +1369,24 @@ function updateTraits(){
       // 어비스 난이도의 특성별 계수는 기존 DPS 계산과 동일하게 표시한다.
       const currentRate=isAbyssDifficulty() ? ({133:15,134:7.5,135:1.5,136:3}[row] ?? rate) : rate;
       const rStr=row===58?'강화수 +1':row===96?'2단 강화 +0.5':traitEffectText(row,type,currentRate);
-      return `<article class="tr trait-invest-card${isMax?' is-mastered':''}${investable?'':' is-unavailable'}" data-trait-id="${row}"${investable?'':` aria-label="${escapeHtml(name)} · ${unavailableReason}"`}>
+      return `<article class="tr trait-invest-card${isMax?' is-mastered':''}" data-trait-id="${row}">
         <div class="trait-invest-main">
           <span class="trait-invest-index" aria-hidden="true">${String(index+1).padStart(2,'0')}</span>
           <div class="trait-row-detail">
-            <div class="trait-invest-topline"><div class="tr-name">${escapeHtml(name)}</div><div class="tr-type"><span class="trait-effect-text">${escapeHtml(rStr)}</span><span class="trait-cost-chip ${!investable?'is-unavailable':isMax?'is-complete':''}">${!investable?unavailableReason:isMax?'✓ 마스터 완료':`다음 투자 · ${fullNumber(cost)}`}</span></div></div>
+            <div class="trait-invest-topline"><div class="tr-name">${escapeHtml(name)}</div><div class="tr-type"><span class="trait-effect-text">${escapeHtml(rStr)}</span><span class="trait-cost-chip ${isMax?'is-complete':''}">${isMax?'✓ 마스터 완료':`다음 투자 · ${fullNumber(cost)}`}</span></div></div>
           </div>
         </div>
         <div class="tr-ctrl" aria-label="${escapeHtml(name)} 투자 조절">
-          <button type="button" class="ui-step-btn" data-action="traitAdjust" data-row="${row}" data-delta="-1" ${!investable||n<=0?'disabled':''} aria-label="${escapeHtml(name)} 1 환불">−</button>
+          <button type="button" class="ui-step-btn" data-action="traitAdjust" data-row="${row}" data-delta="-1" ${n<=0?'disabled':''} aria-label="${escapeHtml(name)} 1 환불">−</button>
           <div class="trait-value-pair">
-            <input class="tv-input" type="text" inputmode="numeric" value="${n}" data-row="${row}" ${investable?'':'disabled'} aria-label="${escapeHtml(name)} 현재 투자">
+            <input class="tv-input" type="text" inputmode="numeric" value="${n}" data-row="${row}" aria-label="${escapeHtml(name)} 현재 투자">
             <span class="trait-max-sep">/</span><span class="trait-max-val">${mx}</span>
           </div>
-          <button type="button" class="ui-step-btn" data-action="traitAdjust" data-row="${row}" data-delta="1" ${!investable||isMax?'disabled':''} aria-label="${escapeHtml(name)} 1 투자">+</button>
-          <button type="button" class="ui-action-btn trait-master-btn" data-action="traitMax" data-row="${row}" ${!investable||isMax?'disabled':''}>마스터</button>
+          <button type="button" class="ui-step-btn" data-action="traitAdjust" data-row="${row}" data-delta="1" ${isMax?'disabled':''} aria-label="${escapeHtml(name)} 1 투자">+</button>
+          <button type="button" class="ui-action-btn trait-master-btn" data-action="traitMax" data-row="${row}" ${isMax?'disabled':''}>마스터</button>
           ${showJanRune || mx>=50 ? `<div class="trait-quick-actions${showJanRune?' has-jan-rune':''}${mx>=50?' has-quick-invest':''}">
             ${showJanRune ? `<div class="trait-jan-rune" aria-label="${isMax?'1월룬 미적용 · 최대치 도달':`1월룬 무료 투자 ${janFree}회, 실적용 ${n+janFree}회`}">${isMax?'<span>1월룬 미적용 · 최대치 도달</span>':`<span>1월룬 +${janFree}</span><strong>실적용 ${n+janFree}</strong>`}</div>` : ''}
-            ${mx>=50 ? [10,50].map(step=>`<button type="button" data-action="traitQuickAdjust" data-row="${row}" data-step="${step}" ${!investable||mx-n<step?'disabled':''} aria-label="${escapeHtml(name)} ${step}회 추가 투자">+${step}</button>`).join('') : ''}
+            ${mx>=50 ? [10,50].map(step=>`<button type="button" data-action="traitQuickAdjust" data-row="${row}" data-step="${step}" ${mx-n<step?'disabled':''} aria-label="${escapeHtml(name)} ${step}회 추가 투자">+${step}</button>`).join('') : ''}
           </div>` : ''}
         </div>
       </article>`;
@@ -1416,7 +1403,7 @@ let traitKeyNavGuardUntil=0;
 /* 10-B · 수동 투자·반복 입력 */
 function commitTraitInput(el){
   const row=+(el && el.dataset ? el.dataset.row : NaN);
-  if(!Number.isFinite(row) || !isTraitCurrentlyInvestable(row) || el.disabled) return;
+  if(!Number.isFinite(row) || el.disabled) return;
   setInv(row,+el.value);
 }
 function getTraitScrollHost(){
@@ -1480,7 +1467,7 @@ function adjustTraitBy(row,d,step=1){
   row=+row;
   d=+d;
   step=Math.max(1,Math.round(+step||1));
-  if(row===116 || !isTraitCurrentlyInvestable(row) || !Number.isFinite(row) || !Number.isFinite(d) || d===0) return false;
+  if(row===116 || !Number.isFinite(row) || !Number.isFinite(d) || d===0) return false;
   const before=INV[row]||0;
   let applied=0;
   if(d>0){
@@ -1511,7 +1498,7 @@ function startTraitAdjustHold(trigger,e){
   if(!trigger || trigger.disabled) return;
   const row=+trigger.dataset.row;
   const delta=+trigger.dataset.delta;
-  if(!Number.isFinite(row) || !isTraitCurrentlyInvestable(row) || !Number.isFinite(delta) || delta===0) return;
+  if(!Number.isFinite(row) || !Number.isFinite(delta) || delta===0) return;
   if(e){ e.preventDefault(); e.stopPropagation(); }
   stopTraitAdjustHold();
   let count=0;
@@ -1542,7 +1529,7 @@ function bindTraitHoldEvents(){
   });
 }
 function setInv(row,val){
-  if(row===116 || !isTraitCurrentlyInvestable(row)) return;
+  if(row===116) return;
   if(isNaN(val)||val<0) val=0;
   const wanted=Math.round(val);
   const applied=setRowToAffordableValue(row,wanted);
@@ -1551,7 +1538,7 @@ function setInv(row,val){
 }
 function adjMax(row){
   try{
-    if(row===116 || !isTraitCurrentlyInvestable(row)) return false;
+    if(row===116) return false;
     const before=INV[row]||0;
     fillRowToBudget(row);
     commitTraitInvestmentChange();
@@ -1565,7 +1552,7 @@ function adjMax(row){
 function forEachTraitInTier(tier, callback){
   TRAITS.forEach(t=>{
     const row=t[0];
-    if(t[2]!==tier || row===116 || !isTraitCurrentlyInvestable(row)) return;
+    if(t[2]!==tier || row===116) return;
     callback(t,row);
   });
 }
@@ -1584,7 +1571,7 @@ const UTILITY_OPT_TIERS=OPTIMIZATION_TIERS;
 function isUtilityOptimizationTrait(t, maxTierIndex=null){
   if(!Array.isArray(t)) return false;
   const row=t[0], tier=t[2], type=t[3];
-  if(row===116 || row===112 || !isTraitCurrentlyInvestable(row)) return false;
+  if(row===116 || row===112) return false;
   const tierIdx=UTILITY_OPT_TIERS.indexOf(tier);
   if(tierIdx<0) return false;
   if(maxTierIndex!==null && tierIdx>maxTierIndex) return false;
@@ -1624,7 +1611,6 @@ function clearTraitInvestmentsBy(predicate){
   TRAITS.forEach(t=>{
     if(!predicate(t)) return;
     const row=+t[0];
-    if(!isTraitCurrentlyInvestable(row)) return;
     if((INV[row]||0)>0){
       INV[row]=0;
       changed++;

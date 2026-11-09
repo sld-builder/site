@@ -491,7 +491,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <button class="btn subtle ui-action-btn preset-command is-import" data-action="importTraitPresets" data-state="idle" aria-label="프리셋 가져오기" type="button"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9" viewbox="0 0 24 24"><path d="M12 16V4m-4 4 4-4 4 4"></path><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"></path></svg><span class="preset-command-main"><strong>가져오기</strong><small class="preset-command-hint">파일에서 불러오기</small></span></button>
 <button class="btn subtle ui-action-btn preset-command is-reset" data-action="resetAllTraitPresetState" disabled="" id="traitPresetResetAllBtn" aria-label="프리셋 초기화" type="button"><svg aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24"><path d="M3 11a9 9 0 1 1 2.5 6.3M3 4v7h7m2-4v5l3 2"></path></svg><span class="preset-command-main"><strong>초기화</strong><small class="preset-command-hint">저장 데이터 초기화</small></span></button>
 <button class="btn subtle ui-action-btn preset-command is-update" data-action="updateTraitPreset" aria-label="프리셋 업데이트" type="button"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9" viewbox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14-5L4 8m0-5v5h5M4 13a8 8 0 0 0 14 5l2-2m0 5v-5h-5"></path></svg><span class="preset-command-main"><strong>업데이트</strong><small class="preset-command-hint">현재 변경사항 반영</small></span></button>
-<button class="btn subtle ui-action-btn preset-command is-backup" data-action="backupTraitPresets" data-state="idle" aria-label="프리셋 백업" type="button"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9" viewbox="0 0 24 24"><path d="M12 4v12m-4-4 4 4 4-4"></path><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"></path></svg><span class="preset-command-main"><strong>백업</strong><small class="preset-command-hint">파일로 내보내기</small></span></button></div>
+<button class="btn subtle ui-action-btn preset-command is-backup" data-action="backupTraitPresets" data-state="idle" aria-label="프리셋 백업" type="button"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9" viewbox="0 0 24 24"><path d="M12 4v12m-4-4 4 4 4-4"></path><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"></path></svg><span class="preset-command-main"><strong>백업</strong><small class="preset-command-hint">파일로 내보내기</small></span></button>
+</div>
 
 </div>
 <input id="traitPresetImportFile" class="hidden-field" type="file" accept=".txt,.json,text/plain,application/json"/>
@@ -1147,7 +1148,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <div class="col-right">
 <!-- 스펙·유닛 보드: 전환 버튼·결과 -->
 <div class="data-card stat-dps-card right-analytics-workspace analytics-polish">
-<div class="right-workspace-navigation"><header class="right-workspace-head"><span class="right-workspace-mark" aria-hidden="true"><svg class="ui-header-glyph" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#dpsUiSparklesGlyph"/></svg></span><span class="right-workspace-copy"><strong>분석 보드</strong></span></header>
+<div class="right-workspace-navigation"><header class="right-workspace-head"><span class="right-workspace-mark" aria-hidden="true"><svg class="ui-header-glyph" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#dpsUiSparklesGlyph"/></svg></span><span class="right-workspace-copy"><strong>분석 보드</strong></span><button class="ui-action-btn right-workspace-clear-record" data-clear-record-open type="button" aria-haspopup="dialog" aria-controls="traitClearRecordPanel"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9" viewBox="0 0 24 24"><path d="M8 4h9a2 2 0 0 1 2 2v14H8a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/><path d="M6 8H4v12a2 2 0 0 0 2 2h9"/><path d="M10 10h6M10 14h6"/></svg><span>클리어 기록</span></button></header>
 <section class="damage-board-analysis-view" id="damageBoardAnalysisPanel" aria-label="분석 보드 내용">
 <div class="damage-board-subtabs integrated-tabs" role="tablist" aria-label="분석 보드 세부 선택" data-damage-board-subtabs>
 <button class="integrated-tab is-active" id="damageBoardSpecTab" type="button" role="tab" aria-selected="true" aria-controls="damageBoardSpecPanel" data-damage-board-subtab="spec" tabindex="0">스펙 보드</button>
@@ -1400,6 +1401,20 @@ loadScriptSequence(['data.js','calc.js','app.js','unit.js','preset.js','responsi
   </div>
 </dialog>
 
+<!-- 프리셋 클리어 기록: 로컬 미리보기·클립보드 복사만 지원 -->
+<div id="traitClearRecordOverlay" class="trait-clear-record-overlay" hidden>
+  <section id="traitClearRecordPanel" class="trait-clear-record-panel" role="dialog" aria-modal="true" aria-labelledby="traitClearRecordTitle" tabindex="-1">
+    <header class="trait-preset-modal-head trait-clear-record-head">
+      <h2 id="traitClearRecordTitle">클리어 기록</h2>
+      <div class="trait-clear-record-controls">
+        <button type="button" class="trait-clear-record-copy" data-clear-record-copy>기록 복사</button>
+        <button type="button" class="trait-preset-modal-close" data-clear-record-close aria-label="클리어 기록 닫기">×</button>
+      </div>
+    </header>
+    <p class="trait-clear-record-help">기록을 복사하여 다른 유저들과 공유해 보세요.</p>
+    <div id="traitClearRecordBody" class="trait-clear-record-body" tabindex="0"></div>
+  </section>
+</div>
 <div id="traitPresetBackupOverlay" class="trait-preset-backup-overlay" hidden><section id="traitPresetBackupPanel" class="trait-preset-backup-panel" role="dialog" aria-modal="true" aria-labelledby="traitPresetBackupTitle" tabindex="-1"><header class="trait-preset-modal-head"><div class="trait-preset-modal-heading"><span class="trait-preset-modal-mark" aria-hidden="true"><svg class="ui-header-glyph" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#dpsUiSparklesGlyph"/></svg></span><h2 id="traitPresetBackupTitle">프리셋 최신화</h2></div><button type="button" class="ui-icon-btn trait-preset-modal-close" data-trait-preset-backup-close="1" aria-label="프리셋 최신화 닫기">×</button></header><div class="trait-preset-modal-body trait-preset-backup-body" id="traitPresetBackupBody"></div></section></div>
 </body>
 </html>

@@ -3074,6 +3074,222 @@ async function importTraitPresetFile(file){
   }
 }
 /* ── 10 · UI 이벤트 ── */
+/* 현재 프리셋의 클리어 기록: 이전 상세 기록과 동일한 보고서 형식, 로컬 조회·복사 전용 */
+function formatDpsClearReport(report){
+  const {context,stageMain,stageRound,achievement,specDps,dpsLabel,required,expected,resourceRows,buildRows,effects,units,sanctuaryRows=[]}=report;
+  const lines=[
+    '클리어 기록 보고서',
+    `- 모드 난이도: ${context}`,
+    `- 고행: ${stageMain}`,
+    `- 라운드: ${stageRound}`,
+    `- ${dpsLabel}: ${specDps}`,
+    `- 클리어 기준: ${required}`,
+    `- 클리어 기대값: ${expected}`,
+    `- 클리어 달성률: ${achievement}`,
+    '', '재화 현황',
+    ...resourceRows.map(({label,value})=>`- ${label}: ${value}`),
+    '', '빌드 설정',
+    ...buildRows.map(({label,value})=>`- ${label}: ${value}`)
+  ];
+  for(const group of effects.filter(group=>group.lines.length)){
+    lines.push('',group.title,...group.lines.map(line=>`- ${line}`));
+  }
+  lines.push('', '성소 정보');
+  if(sanctuaryRows.length){
+    for(const slot of sanctuaryRows) lines.push(`- ${slot.number} · ${slot.start} ~ ${slot.end} · ${slot.skill1||'—'} · ${slot.count1||'—'} · ${slot.skill2||'—'} · ${slot.count2||'—'}`);
+  }else lines.push('성소 스킬 사용 없이 클리어됨');
+  const totalQuantity=units.reduce((sum,unit)=>sum+Math.max(1,Number(unit.quantity)||1),0);
+  lines.push('',`선택 유닛 정보 (${units.length}슬롯 · ${totalQuantity}마리)`);
+  for(const unit of units){
+    const title=`- ${unit.slot} · ${unit.name} · ${unit.quantity}마리 · 강화 ${unit.enhance}`;
+    if(!unit.extras.length){
+      lines.push(`${title} · 돌파 ${unit.limitBreak} · ${unit.jewel}`);
+    }else{
+      lines.push(title,`  - 1번 · 돌파 ${unit.limitBreak} · ${unit.jewel}`,
+        ...unit.extras.map(extra=>`  - ${extra.number}번 · 돌파 ${extra.limitBreak} · ${extra.jewel}`));
+    }
+  }
+  return lines.join('\n');
+}
+
+// 기존 상세 기록 생성 규칙만 재사용한다. 외부 등록·전송 없이 현재 화면의 기록을 읽는다.
+function createDpsClearReport(){
+  const artifactView=isArtifactDpsViewEnabled();
+  const summary=$('dpsBaseUnitSummary');
+  const table=$('dpsBaseUnitSlotStack')?.querySelector('.unit-basic-summary table');
+  // 유물 DPS의 스펙 보드 값은 유닛 보드 요약의 표시 여부와 무관하게 읽는다.
+  if(!artifactView && (!summary || summary.hidden || !table?.tHead || !table.tBodies.length)){
+    return {error:'현재 복사할 유닛 분석 결과가 없습니다.'};
+  }
+  const columnCount=table?.tHead?.rows[0]?.cells.length || 0;
+  const rows=columnCount ? [...table.tBodies[0].rows]
+    .filter(row=>row.cells.length===columnCount)
+    .slice(0,10)
+    .map(row=>[...row.cells].map(cell=>cell.textContent.trim())) : [];
+  if(!artifactView && !rows.length) return {error:'복사할 유닛이 없습니다.'};
+  const readText=selector=>summary?.querySelector(selector)?.textContent.replace(/\s+/g,' ').trim() || '—';
+  const readSpecText=selector=>$(selector)?.textContent.replace(/\s+/g,' ').trim() || '—';
+  const context=artifactView
+    ? [...($('rightHeroCompactContext')?.querySelectorAll('.spec-board-mode,.spec-board-difficulty') || [])].map(el=>el.textContent.replace(/\s+/g,' ').trim()).filter(Boolean).join(' · ') || '—'
+    : [readText('.dps-base-unit-context .spec-board-mode'),readText('.dps-base-unit-context .spec-board-difficulty')].filter(value=>value!=='—').join(' · ') || '—';
+  const stageMain=artifactView ? readSpecText('specHeroStage') : readText('.unit-summary-stage strong');
+  const stageRound=artifactView ? readSpecText('specHeroRound') : readText('.unit-summary-stage small');
+  const summaryItems=summary?.querySelectorAll('.dps-base-unit-results > .dps-base-unit-summary-item') || [];
+  const metricText=item=>item?.querySelector('.dps-num')?.textContent.replace(/\s+/g,' ').trim() || '—';
+  const required=metricText(summaryItems[0]);
+  const expected=metricText(summaryItems[1]);
+  const achievement=readText('.unit-achievement-value');
+  const specDps=readSpecText('dpsVal');
+  const dpsLabel=artifactView ? '유물 DPS' : '스펙 DPS';
+  if(artifactView && (context === '—' || stageMain === '—' || specDps === '—')){
+    return {error:'스펙 보드의 유물 DPS 정보를 확인할 수 없습니다.'};
+  }
+  const runeNames={ap:'파이널룬',td:'카오스룬',ua:'코스모스룬',harmony:'하모니아룬'};
+  const runeName=runeNames[$('runeChoiceType')?.value] || '미분류';
+  const readOption=id=>{
+    const option=$(id)?.selectedOptions?.[0];
+    return !option ? '—' : ['none','없음'].includes(option.value) ? '없음' : option.textContent.trim() || '—';
+  };
+  const asc=readOption('rAsc');
+  const race=readOption('raceOpt');
+  const opt10=readOption('opt10');
+  const opt15=readOption('opt15');
+  const trans=readOption('transOpt');
+  const enchants=ENCHANT_INPUT_IDS.map(id=>$(id)?.value.trim() || '—').join(' · ');
+  // 재화는 이미 계산되어 표시 중인 분석 보드 값을 읽는다. 계산·저장 상태는 변경하지 않는다.
+  const resourceRows=[
+    {label:'총 SP',value:($('spTotalBasicView')?.textContent || '—').trim()},
+    {label:'사용한 EP',value:($('epUsedBasicView')?.textContent || '—').trim()},
+    {label:'사용한 RP',value:($('rpUsedBasicView')?.textContent || '—').trim()},
+    {label:'사용한 심연의혼',value:($('soulUsedBasicView')?.textContent || '—').trim()}
+  ];
+  // 빌드 기본 설정은 항목별로 한 줄씩 출력한다.
+  const buildRows=[{label:'룬',value:`${runeName} · 각성 ${asc}`},{label:'종족업',value:race},{label:'10강',value:opt10},{label:'15강',value:opt15},{label:'초월',value:trans},{label:'인첸트',value:enchants}];
+  const activeNumber=(id,label)=>{
+    const value=Number($(id)?.value || 0);
+    return Number.isFinite(value) && value>0 ? `${label} ${value}` : null;
+  };
+  const januaryScope=$('janRuneScope')?.value==='J2' ? '@J2' : '@J1';
+  // 이달의 룬 효과는 월별 항목명 / 적용 수치를 2열로 표시한다.
+  const monthRuneRows=[
+    {label:'1월',value:[activeNumber('janRuneNormal','일반'),activeNumber('janRunePlus','강화')].filter(Boolean).join(' · ')},
+    {label:'4월',value:[activeNumber('aprRuneNormal','일반'),activeNumber('aprRunePlus','강화')].filter(Boolean).join(' · ')},
+    {label:'9월',value:[activeNumber('sepRuneNormal','일반'),activeNumber('sepRunePlus','강화')].filter(Boolean).join(' · ')}
+  ].filter(row=>row.value);
+  const monthRuneLines=monthRuneRows.map(row=>`${row.label} ${row.value}`);
+  const repairValue=$('repairEnhance')?.value;
+  const masterValue=$('enhanceMaster')?.value;
+  const overEnhance=activeNumber('overEnhance','오버핸스');
+  const repairEnhance=['ON','ON+'].includes(repairValue) ? (repairValue==='ON+'?'리페핸스+':'리페핸스') : null;
+  const masterEnhance=['ON','ON+'].includes(masterValue) ? (masterValue==='ON+'?'선택 강화':'전체활성화') : null;
+  // 방어력 관통은 스펙 보드 정보이므로 클리어 기록 보고서에는 중복 출력하지 않는다.
+  const enhanceRows=[
+    {label:'오버핸스',value:overEnhance?.slice('오버핸스 '.length)},
+    {label:'리페핸스',value:repairEnhance},
+    {label:'강화의 달인',value:masterEnhance}
+  ].filter(row=>row.value);
+  const enhanceLines=enhanceRows.map(row=>row.label==='리페핸스' ? row.value : `${row.label} ${row.value}`);
+  const buffIds=['prodArtifact','prodNova','prodTeratron','prodAmon','prodAdun','prodKerrigan','prodOvermind','prodNarud','flowerSkill1','flowerSkill2','flowerSkill3'];
+  const selectedBuffs=buffIds.map(id=>({id,input:$(id)})).filter(({input})=>input?.checked && !input.disabled);
+  const buffNames=(items)=>items.map(({id,input})=>input.closest('label')?.querySelector('span')?.textContent.trim() || id).join(' · ');
+  const unitBuffs=buffNames(selectedBuffs.filter(({id})=>id.startsWith('prod')));
+  const flowerBuffs=buffNames(selectedBuffs.filter(({id})=>id.startsWith('flower')));
+  const buffLines=[unitBuffs && `유닛 버프: ${unitBuffs}`,flowerBuffs && `꽃 버프: ${flowerBuffs}`].filter(Boolean);
+  if(!buffLines.length) buffLines.push('없음');
+  // 현재 선택된 버프만 종류별 한 줄로 보존한다.
+  const effects=[
+    {title:'이달의 룬 효과',lines:[`1월 적용 범위: ${januaryScope}`,...monthRuneLines]},
+    {title:'강화 효과',lines:enhanceLines},
+    {title:'선택 버프',lines:buffLines}
+  ];
+  const unitEntries=[];
+  const selectedSlots=currentDpsBaseUnitSlots();
+  const jewels=dpsJewelSettingsObject();
+  for(const [slot,name,quantity,limitBreak,jewel] of rows){
+    const unit=dpsBaseUnitById(selectedSlots[Number(slot)-1]);
+    const extras=unit && dpsBaseUnitSlotExpanded(unit)
+      ? dpsBaseUnitExtraSlotSettings(unit).slice(0,dpsBaseUnitActiveExtraJewelCount(unit)).map((setting,index)=>{
+          const jewelName=setting.legendaryMythicJewel;
+          const jewelText=jewelName ? `${dpsJewelFinalStats(jewelName,jewels).mythic==='Y'?'신화':'전설'} ${jewelName}` : '없음';
+          return {number:index+2,limitBreak:String(setting.limitBreak ?? 0),jewel:jewelText};
+        }) : [];
+    unitEntries.push({slot,name,quantity,enhance:unit ? String(dpsBaseUnitEnhanceValue(unit)) : '—',limitBreak,jewel,extras});
+  }
+  const plainText=formatDpsClearReport({
+    context,stageMain,stageRound,achievement,specDps,dpsLabel,required,expected,resourceRows,buildRows,effects,units:unitEntries,sanctuaryRows:dpsSanctuaryValidRows()
+  });
+  return {plainText,unitCount:rows.length};
+}
+
+let traitClearRecordText='';
+let traitClearRecordTrigger=null;
+let traitClearRecordCopyTimer=0;
+function renderTraitClearRecord(text){
+  const container=$('traitClearRecordBody');
+  if(container) container.textContent=text;
+}
+function resetTraitClearRecordCopyButtons(){
+  clearTimeout(traitClearRecordCopyTimer);
+  document.querySelectorAll('[data-clear-record-copy]').forEach(button=>{
+    button.textContent='기록 복사';
+  });
+}
+function openTraitClearRecord(){
+  const overlay=$('traitClearRecordOverlay');
+  const panel=$('traitClearRecordPanel');
+  if(!overlay || !panel) return;
+  const report=createDpsClearReport();
+  traitClearRecordText=(report.plainText || '').replace(/^(\s*)- /gm,'$1');
+  traitClearRecordTrigger=document.activeElement;
+  resetTraitClearRecordCopyButtons();
+  if(traitClearRecordText) renderTraitClearRecord(traitClearRecordText);
+  else{
+    const body=$('traitClearRecordBody');
+    if(body) body.textContent=report.error || '현재 표시할 클리어 기록이 없습니다.';
+  }
+  document.querySelectorAll('[data-clear-record-copy]').forEach(button=>{button.disabled=!traitClearRecordText;});
+  overlay.hidden=false;
+  document.body.classList.add('trait-clear-record-open');
+  panel.focus();
+}
+function closeTraitClearRecord(){
+  const overlay=$('traitClearRecordOverlay');
+  if(!overlay || overlay.hidden) return;
+  overlay.hidden=true;
+  document.body.classList.remove('trait-clear-record-open');
+  traitClearRecordText='';
+  resetTraitClearRecordCopyButtons();
+  if(traitClearRecordTrigger?.isConnected) traitClearRecordTrigger.focus();
+  traitClearRecordTrigger=null;
+}
+async function copyTraitClearRecord(button){
+  if(!traitClearRecordText || !button || button.disabled) return;
+  const text=traitClearRecordText;
+  let copied=false;
+  try{
+    if(navigator.clipboard?.writeText){
+      await navigator.clipboard.writeText(text);
+      copied=true;
+    }
+  }catch(error){ /* 클립보드 API 미지원 환경에서는 로컬 선택 복사로 처리 */ }
+  if(!copied){
+    const selection=document.activeElement;
+    const input=document.createElement('textarea');
+    input.value=text;
+    input.setAttribute('readonly','');
+    input.style.cssText='position:fixed;top:-9999px;left:-9999px;opacity:0';
+    document.body.append(input);
+    input.select();
+    try{copied=document.execCommand('copy');}catch(error){copied=false;}
+    input.remove();
+    if(selection?.isConnected) selection.focus();
+  }
+  if(!$('traitClearRecordOverlay') || $('traitClearRecordOverlay').hidden) return;
+  resetTraitClearRecordCopyButtons();
+  button.textContent=copied ? '복사 완료' : '복사 실패';
+  traitClearRecordCopyTimer=setTimeout(resetTraitClearRecordCopyButtons,1600);
+}
+
 /* 프리셋 UI 이벤트 바인딩 */
 function handleTraitPresetChange(e){
   if(e.target?.id==='traitPresetSelect'){
@@ -3086,6 +3302,22 @@ function handleTraitPresetChange(e){
   }
 }
 function handleTraitPresetClick(e){
+  if(e.target.closest('[data-clear-record-open]')){
+    e.preventDefault();
+    openTraitClearRecord();
+    return;
+  }
+  const copyButton=e.target.closest('[data-clear-record-copy]');
+  if(copyButton){
+    e.preventDefault();
+    copyTraitClearRecord(copyButton);
+    return;
+  }
+  if(e.target.closest('[data-clear-record-close]') || e.target.id==='traitClearRecordOverlay'){
+    e.preventDefault();
+    closeTraitClearRecord();
+    return;
+  }
   const deleteButton=e.target.closest('[data-trait-preset-custom-delete]');
   if(deleteButton){
     e.preventDefault();
@@ -3145,6 +3377,28 @@ function handleTraitPresetClick(e){
   }
 }
 function handleTraitPresetKeydown(e){
+  const clearPanel=$('traitClearRecordPanel');
+  if(clearPanel && !$('traitClearRecordOverlay')?.hidden){
+    if(e.key==='Escape'){
+      e.preventDefault();
+      closeTraitClearRecord();
+      return;
+    }
+    if(e.key==='Tab'){
+      const controls=[...clearPanel.querySelectorAll('button:not(:disabled),[tabindex="0"]')];
+      const first=controls[0],last=controls[controls.length-1];
+      if(first && last){
+        if(e.shiftKey && (document.activeElement===first || document.activeElement===clearPanel)){
+          e.preventDefault();last.focus();
+        }else if(!e.shiftKey && document.activeElement===last){
+          e.preventDefault();first.focus();
+        }else if(!clearPanel.contains(document.activeElement)){
+          e.preventDefault();first.focus();
+        }
+      }
+    }
+    return;
+  }
   const backupPanel=$('traitPresetBackupPanel');
   if(backupPanel?.classList.contains('is-open')){
     if(e.key==='Escape'){

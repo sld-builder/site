@@ -208,3 +208,32 @@ body .settings-polish .trait-preset-name-row input{border-radius:7px;}
 body .settings-polish .trait-preset-form-card :is(.trait-preset-form-heading,.trait-preset-name-row,.trait-preset-load-row){min-width:0;}
 body .settings-polish .trait-preset-actions .preset-command-main{min-width:0;}
 body .settings-polish .trait-preset-actions .preset-command-main :is(strong,small){white-space:normal;overflow-wrap:anywhere;}
+
+/* 프리셋: 클리어 기록 조회·복사 전용 모달 */
+.trait-clear-record-overlay{position:fixed;inset:0;z-index:20001;display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:12px;background:var(--ui-modal-backdrop-bg);backdrop-filter:var(--ui-modal-backdrop-blur);-webkit-backdrop-filter:var(--ui-modal-backdrop-blur);}
+.trait-clear-record-overlay[hidden]{display:none;}
+body.trait-clear-record-open{overflow:hidden;}
+.trait-clear-record-panel{display:flex;flex-direction:column;min-width:0;width:min(420px,100%);max-height:min(490px,calc(100dvh - 24px));border:1px solid var(--ui-modal-border);border-radius:var(--ui-modal-radius);background:var(--ui-panel-body-bg);box-shadow:var(--ui-modal-shadow);overflow:hidden;}
+.trait-clear-record-panel:focus{outline:none;}
+.trait-clear-record-head{flex:0 0 auto;min-height:52px;gap:6px;padding:7px 11px;}
+.trait-clear-record-head h2{flex:0 0 auto;font-size:calc(14px * var(--app-font-scale));white-space:nowrap;}
+.trait-clear-record-controls{display:flex;align-items:center;justify-content:flex-end;gap:5px;min-width:0;margin-left:auto;}
+.trait-clear-record-copy{min-height:30px;flex:none;margin:0;padding:5px 8px;border:1px solid var(--ui-button-border);border-radius:7px;background:var(--ui-button-bg);color:var(--ui-button-text);font-size:calc(11px * var(--app-font-scale));font-weight:500;white-space:nowrap;cursor:pointer;}
+.trait-clear-record-copy:hover:not(:disabled){border-color:var(--ui-button-active-border);background:var(--ui-button-active-bg);color:var(--ui-button-active-text);}
+.trait-clear-record-copy:disabled{opacity:.5;cursor:default;}
+.trait-clear-record-controls .trait-preset-modal-close{width:30px;height:30px;flex:none;}
+.trait-clear-record-copy:focus-visible,.trait-clear-record-controls .trait-preset-modal-close:focus-visible{outline:2px solid var(--role-manual-active-bd);outline-offset:2px;}
+.trait-clear-record-help{flex:0 0 auto;margin:0;padding:10px 13px 5px;color:var(--ui-sub);font-size:calc(11px * var(--app-font-scale));line-height:1.5;}
+.trait-clear-record-body{flex:1 1 auto;min-height:0;min-width:0;max-height:315px;margin:7px 11px 12px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;padding:11px;border:1px solid var(--ui-modal-border);border-radius:9px;background:var(--ui-input);color:var(--ui-unified-text);font-size:calc(11.5px * var(--app-font-scale));line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere;font-variant-numeric:tabular-nums;scrollbar-width:none;-ms-overflow-style:none;}
+.trait-clear-record-body::-webkit-scrollbar{display:none;}
+@media (max-width:420px){
+  .trait-clear-record-overlay{padding:8px;}
+  .trait-clear-record-panel{max-height:calc(100dvh - 16px);}
+  .trait-clear-record-head{padding:7px 8px;gap:4px;flex-wrap:wrap;}
+  .trait-clear-record-head h2{font-size:calc(12px * var(--app-font-scale));}
+  .trait-clear-record-controls{gap:4px;}
+  .trait-clear-record-copy{padding:5px 6px;font-size:calc(10px * var(--app-font-scale));}
+  .trait-clear-record-controls .trait-preset-modal-close{width:28px;height:29px;}
+  .trait-clear-record-help{padding:8px 10px 4px;font-size:calc(10.5px * var(--app-font-scale));}
+  .trait-clear-record-body{max-height:300px;margin:6px 8px 9px;padding:9px;}
+}

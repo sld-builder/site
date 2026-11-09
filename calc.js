@@ -2456,13 +2456,12 @@ function traitV1AllowedInMode(t){
 }
 function isTraitOptimizationTarget(t){
   const row=t?.[0];
-  if(AUTO_INVEST_EXCLUDED_ROWS.has(row) || !traitLimitAllowsTrait(t) || !traitV1AllowedInMode(t)) return false;
+  if(!traitLimitAllowsTrait(t) || !traitV1AllowedInMode(t)) return false;
   const info=traitOptimizationResourceInfo(row);
   if(!info) return false;
   const normalSet=TRAIT_OPT_NORMAL_ROWS[info.kind];
   if(!normalSet || !normalSet.has(row)) return false;
   if(!allowedRowsByTier().has(row)) return false;
-  if((row===131 || row===132) && !isAbyssDifficulty()) return false;
   return true;
 }
 /* VBA V1 효율표: 한 번 투자했을 때의 DPS 증가/다음 투자비용으로 순위를 정한다.
@@ -2639,7 +2638,6 @@ function traitV1RestoreNegativeStats(guard){
 function traitV1PreInvestSet(row,wanted){
   const t=traitByRow(row);
   if(!t || !allowedRowsByTier().has(row) || !traitLimitAllowsTrait(t) || !traitV1AllowedInMode(t)) return false;
-  if((row===131 || row===132) && !isAbyssDifficulty()) return false;
   if((INV[row]||0)>=wanted) return false;
   const kind=traitOptimizationResourceInfo(row)?.kind;
   if(!kind) return false;
@@ -2680,7 +2678,7 @@ function traitV1PreInvest(){
     }
   }
   // VBA 혼: 보유 혼 4980 이상일 때 선투자.
-  // 심연·침식 내성은 엑셀의 난이도 조건을 따라 어비스에서만 투자한다.
+  // 선택 모드와 무관하게 심연·침식 내성도 기존 선투자 범위에 포함한다.
   if(resourceOwn('SOUL')>=4980){
     for(const [row,count] of [[131,10],[132,10],[133,12],[134,12],[135,12],[136,12],[137,10],[138,10]]){
       traitV1PreInvestSet(row,count);
