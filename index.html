@@ -3,7 +3,7 @@
 <head>
     <script>
         // 앱 표시 및 리소스 캐시 공통 버전
-        window.APP_VERSION = "NXS-Nexus-V1";
+        window.APP_VERSION = "sld-nexus-v1";
         window.NEXUS_BUILD_VERSION = window.APP_VERSION;
         if (new URLSearchParams(window.location.search).get('nexusStandalone') === 'build') {
             document.documentElement.classList.add('nexus-standalone-build');
@@ -200,15 +200,15 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
 
-    <meta property="og:image" content="https://nxsforge.github.io/nexus/logo.png?v=NXS-Nexus-V1">
-    <meta property="og:image:secure_url" content="https://nxsforge.github.io/nexus/logo.png?v=NXS-Nexus-V1">
+    <meta property="og:image" content="https://sld-nexus.github.io/site/logo.png?v=sld-nexus-v1">
+    <meta property="og:image:secure_url" content="https://sld-nexus.github.io/site/logo.png?v=sld-nexus-v1">
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:alt" content="개복디 넥서스">
-    <meta name="twitter:image" content="https://nxsforge.github.io/nexus/logo.png?v=NXS-Nexus-V1">
+    <meta name="twitter:image" content="https://sld-nexus.github.io/site/logo.png?v=sld-nexus-v1">
     <meta name="twitter:image:alt" content="개복디 넥서스">
     <meta name="description" content="유닛도감, 히든보드, 필요재료, 정수계산을 한곳에서 사용할 수 있는 개복디 넥서스 조합/계산 HUB">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://nxsforge.github.io/nexus/">
+    <meta property="og:url" content="https://sld-nexus.github.io/site/">
     <meta property="og:title" content="개복디 넥서스 - 히든조합&정수 계산 HUB">
     <meta property="og:description" content="유닛도감, 히든보드, 필요재료, 정수계산을 한곳에서 사용할 수 있는 개복디 넥서스 조합/계산 HUB">
     <meta property="og:image:width" content="1280">
@@ -380,7 +380,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         </nav>
         <div class="gh-right">
             <button type="button" id="btnBuildStandalone" class="gh-tool-btn" data-action="openBuildIndependentWindow" aria-label="조합·재료 독립 창" title="조합·재료 독립 창"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4" width="19" height="15" rx="2"/><rect x="11.5" y="11" width="7.5" height="5.5" rx="1"/></svg></button>
-            <a class="gh-tool-btn" data-nexus-view="dps" href="https://nxsforge.github.io/builder/" aria-label="개복디 빌더" title="개복디 빌더"><span aria-hidden="true">B</span></a>
+            <a class="gh-tool-btn" data-nexus-view="dps" href="https://sld-builder.github.io/site/" aria-label="개복디 빌더" title="개복디 빌더"><span aria-hidden="true">B</span></a>
             <div class="gh-fontsize-ctrl">
                 <button type="button" class="gh-tool-btn gh-fontsize-trigger" data-action="toggleFontSizePopup" id="btnFontSizePopup" aria-label="글자 크기 조절" aria-controls="fontSizePopup" aria-expanded="false" title="글자 크기 조절">A</button>
                 <div id="fontSizePopup" class="gh-fontsize-popup" role="group" aria-label="글자 크기 조절" hidden>
