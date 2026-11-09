@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ko" class="nexus-booting">
+<head>
+    <script>
+        // 앱 표시 및 리소스 캐시 공통 버전
+        window.APP_VERSION = "NXS-Nexus-V1";
+        window.NEXUS_BUILD_VERSION = window.APP_VERSION;
+        if (new URLSearchParams(window.location.search).get('nexusStandalone') === 'build') {
+            document.documentElement.classList.add('nexus-standalone-build');
+        }
+        window.NEXUS_STORAGE_KEYS = {
+            saveData: "nexusSaveData",
+            favorites: "nexusFavorites",
+            fontScale: "nexusFontScaleV2"
+        };
+        window.nexusAssetUrl = function(src){
+            var separator = src.indexOf('?') === -1 ? '?' : '&';
+            return src + separator + 'v=' + encodeURIComponent(window.APP_VERSION);
+        };
+        window.nexusCleanUpdateParams = function(){
+            if(!window.location || !window.history || !window.history.replaceState) return;
+            try{
+                var url = new URL(window.location.href);
+                var changed = false;
+                ['fresh','__nexus_check'].forEach(function(name){
+                    if(url.searchParams.has(name)){
+                        url.searchParams.delete(name);
+                        changed = true;
+                    }
+                });
+                if(changed) window.history.replaceState(null, document.title || '', url.pathname + url.search + url.hash);
+            }catch{}
+        };
+        var nexusUpdateCheckPending = false;
+        window.nexusCheckIndexUpdate = function(){
+            if(nexusUpdateCheckPending || !window.fetch || !window.location || window.location.protocol === 'file:') return;
+            nexusUpdateCheckPending = true;
+            var current = window.APP_VERSION;
+            var url = new URL(window.location.href);
+            url.searchParams.set('__nexus_check', String(Date.now()));
+            fetch(url.href, { cache:'no-store' }).then(function(res){
+                if(!res.ok) return '';
+                return res.text();
+            }).then(function(html){
+                var match = String(html || '').match(/window\.APP_VERSION\s*=\s*["']([^"']+)["']/);
+                var latest = match && match[1];
+                if(!latest || latest === current) return;
+                var key = 'nexus-auto-refresh:' + latest;
+                try{
+                    if(sessionStorage.getItem(key) === '1') return;
+                    sessionStorage.setItem(key, '1');
+                }catch{}
+                var next = new URL(window.location.href);
+                next.searchParams.set('fresh', latest);
+                next.searchParams.delete('__nexus_check');
+                window.location.replace(next.href);
+            }).catch(function(){}).finally(function(){ nexusUpdateCheckPending = false; });
+        };
+        window.nexusCleanUpdateParams();
+        setTimeout(window.nexusCheckIndexUpdate, 1200);
+        window.addEventListener('focus', window.nexusCheckIndexUpdate);
+        document.addEventListener('visibilitychange', function(){
+            if(!document.hidden) window.nexusCheckIndexUpdate();
+        });
+        setInterval(window.nexusCheckIndexUpdate, 180000);
+    </script>
+
+    <style>
+        html.nexus-booting body{margin:0;background:#000000;color:#e7c57b;overflow:hidden;}
+        html.nexus-booting .global-header,html.nexus-booting .main-layout,html.nexus-booting .recipe-tooltip{visibility:hidden;}
+        #nexusBootScreen{position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;background:#000000;font-family:system-ui,-apple-system,sans-serif;}
+        #nexusBootScreen .boot-card{width:min(360px,calc(100vw - 48px));padding:32px;border:1px solid #51432b;border-radius:20px;background:#15161a;text-align:center;box-shadow:0 16px 60px #00000040;}
+        #nexusBootScreen .boot-title{font-size:19px;margin-bottom:10px;color:#e7c57b;}
+        #nexusBootScreen .boot-desc{font-size:13px;line-height:1.7;color:#b2ac9f;}
+        #nexusBootScreen .boot-error-code{display:inline-flex;margin:16px 0 4px;padding:8px 16px;border-radius:8px;background:#33211d;color:#e1a38d;}
+        #nexusBootScreen .boot-actions{display:flex;justify-content:center;gap:8px;margin-top:16px;}
+        #nexusBootScreen .boot-action-btn{height:38px;padding:0 14px;border:1px solid #51432b;border-radius:8px;background:#15161a;color:#e7c57b;cursor:pointer;}
+        #nexusBootScreen .boot-action-btn.primary{border-color:#e7c57b;background:#e7c57b;color:#211c12;}
+        html.nexus-boot-error #nexusBootScreen .boot-card{border-color:#855d48;}
+        html:not(.nexus-booting) #nexusBootScreen{display:none;}
+    </style>
+    <script>
+        (function(){
+            function copyTextFallback(text){
+                var area=document.createElement('textarea');
+                area.value=text;
+                area.setAttribute('readonly','');
+                area.style.position='fixed';
+                area.style.left='-9999px';
+                document.body.appendChild(area);
+                area.select();
+                try{document.execCommand('copy');}catch{}
+                area.remove();
+            }
+            window.nexusCopyBootErrorCode=function(code, btn){
+                var done=function(){ if(btn){ var old=btn.textContent; btn.textContent='복사됨'; setTimeout(function(){btn.textContent=old;},1200); } };
+                if(navigator.clipboard && window.isSecureContext){
+                    navigator.clipboard.writeText(code).then(done).catch(function(){ copyTextFallback(code); done(); });
+                }else{
+                    copyTextFallback(code); done();
+                }
+            };
+            window.nexusShowBootError=function(code, err){
+                window.__nexusBootError=true;
+                                try{window.NEXUS_LAST_BOOT_ERROR={code:code,error:err||'unknown',time:Date.now()};}catch{}
+                if(document.readyState==='loading' && !document.getElementById('nexusBootScreen')){
+                    document.addEventListener('DOMContentLoaded',function(){window.nexusShowBootError(code,err);},{once:true});
+                    return;
+                }
+                try{
+                    document.documentElement.classList.add('nexus-booting','nexus-boot-error');
+                    var boot=document.getElementById('nexusBootScreen');
+                    if(boot){
+                        boot.removeAttribute('aria-hidden');
+                        boot.innerHTML='<div class="boot-card"><div class="boot-title">넥서스 초기화에 실패했습니다</div><div class="boot-desc">새로고침 후에도 반복되면 제작자에게 아래 오류코드를 전달해주세요.</div><div class="boot-error-code" aria-label="오류코드">'+code+'</div><div class="boot-actions"><button class="boot-action-btn" id="nexusBootCopyBtn" type="button">오류코드 복사</button><button class="boot-action-btn primary" type="button" onclick="window.location.reload()">새로고침</button></div></div>';
+                        var copyBtn=document.getElementById('nexusBootCopyBtn');
+                        if(copyBtn) copyBtn.onclick=function(){ window.nexusCopyBootErrorCode(code, copyBtn); };
+                    }
+                }catch{}
+            };
+            window.addEventListener('error',function(event){
+                if(event.error && !window.__nexusAppReady && !window.__nexusBootError){
+                    window.nexusShowBootError('N1001',event.error);
+                }
+            });
+            window.addEventListener('error',function(event){
+                var link=event.target;
+                if(link && link.matches && link.matches('link[data-boot-style]')){
+                    link.dataset.loadFailed='1';
+                    window.nexusShowBootError('N1004',new Error('style.css load failed'));
+                }
+            },true);
+            function waitForEssentialResources(){
+                function waitForDocument(){
+                    if(document.readyState!=='loading') return Promise.resolve();
+                    return new Promise(function(resolve){document.addEventListener('DOMContentLoaded',resolve,{once:true});});
+                }
+                function waitForStyle(){
+                    var link=document.querySelector('link[data-boot-style]');
+                    if(!link) return Promise.reject(new Error('required stylesheet missing'));
+                    if(link.dataset.loadFailed==='1') return Promise.reject(new Error('required stylesheet failed'));
+                    if(link.sheet) return Promise.resolve();
+                    return new Promise(function(resolve,reject){
+                        link.addEventListener('load',resolve,{once:true});
+                        link.addEventListener('error',function(){reject(new Error('required stylesheet failed'));},{once:true});
+                    });
+                }
+                function waitForPageLoad(){
+                    if(document.readyState==='complete') return Promise.resolve();
+                    return new Promise(function(resolve){window.addEventListener('load',resolve,{once:true});});
+                }
+                function waitForImages(){
+
+                    var images=Array.from(document.images).filter(function(img){
+                        return img.src && img.loading!=='lazy' && !img.closest('[hidden]');
+                    });
+                    return Promise.all(images.map(function(img){
+                        function check(){
+                            if(img.naturalWidth>0) return;
+                            throw new Error('required image failed: '+(img.currentSrc || img.src));
+                        }
+                        if(img.complete){try{check();return Promise.resolve();}catch(error){return Promise.reject(error);}}
+                        return new Promise(function(resolve,reject){
+                            img.addEventListener('load',resolve,{once:true});
+                            img.addEventListener('error',function(){reject(new Error('required image failed: '+(img.currentSrc || img.src)));},{once:true});
+                        });
+                    }));
+                }
+                function waitForPaint(){
+                    return new Promise(function(resolve){
+                        requestAnimationFrame(function(){requestAnimationFrame(resolve);});
+                    });
+                }
+                return waitForDocument()
+                    .then(waitForStyle)
+                    .then(waitForPageLoad)
+                    .then(function(){return document.fonts ? document.fonts.ready : null;})
+                    .then(waitForImages)
+                    .then(waitForPaint);
+            }
+            function releaseBootScreen(){
+                if(window.__nexusBootError) return;
+                document.documentElement.classList.remove('nexus-booting','nexus-boot-error');
+                var boot=document.getElementById('nexusBootScreen');
+                if(boot) boot.setAttribute('aria-hidden','true');
+            }
+            window.nexusMarkAppReady=function(){
+                if(window.__nexusAppReady || window.__nexusBootError) return;
+                window.__nexusAppReady=true;
+                waitForEssentialResources().then(releaseBootScreen).catch(function(error){
+                    window.nexusShowBootError('N1004',error);
+                });
+            };
+        })();
+    </script>
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>개복디 넥서스</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <meta property="og:image" content="https://nxsforge.github.io/nexus/logo.png?v=NXS-Nexus-V1">
+    <meta property="og:image:secure_url" content="https://nxsforge.github.io/nexus/logo.png?v=NXS-Nexus-V1">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:alt" content="개복디 넥서스">
+    <meta name="twitter:image" content="https://nxsforge.github.io/nexus/logo.png?v=NXS-Nexus-V1">
+    <meta name="twitter:image:alt" content="개복디 넥서스">
+    <meta name="description" content="유닛도감, 히든보드, 필요재료, 정수계산을 한곳에서 사용할 수 있는 개복디 넥서스 조합/계산 HUB">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://nxsforge.github.io/nexus/">
+    <meta property="og:title" content="개복디 넥서스 - 히든조합&정수 계산 HUB">
+    <meta property="og:description" content="유닛도감, 히든보드, 필요재료, 정수계산을 한곳에서 사용할 수 있는 개복디 넥서스 조합/계산 HUB">
+    <meta property="og:image:width" content="1280">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="개복디 넥서스 - 히든조합&정수 계산 HUB">
+    <meta name="twitter:description" content="유닛도감, 히든보드, 필요재료, 정수계산을 한곳에서 사용할 수 있는 개복디 넥서스 조합/계산 HUB">
+    <script>
+        (function(){
+            var icon = document.createElement('link');
+            icon.rel = 'icon';
+            icon.type = 'image/png';
+            icon.href = window.nexusAssetUrl('./icon.png');
+            document.head.appendChild(icon);
+
+            var stylesheet = document.createElement('link');
+            stylesheet.rel = 'stylesheet';
+            stylesheet.dataset.bootStyle = '1';
+            stylesheet.href = window.nexusAssetUrl('./style.css');
+            document.head.appendChild(stylesheet);
+        })();
+    </script>
+<script id="standaloneExperience">
+(function(){
+'use strict';
+  function syncHeaderControlLayout(){
+    var header=document.getElementById('globalHeader');
+    if(!header) return;
+    var rect=header.getBoundingClientRect();
+    header.dataset.nexusLayout=window.innerWidth<768?'mobile':(rect.width<400 && rect.height>window.innerHeight*.7?'rail':'bar');
+  }
+  function mountControlLabels(){
+    var definitions=[
+      ['[data-nexus-view="dps"]','개복디 빌더',window.innerWidth<768?32:34],
+      ['#btnFontSizePopup','글씨 크기 조절',window.innerWidth<768?32:34],
+      ['.font-scale-trigger','글씨 크기 조절',30],
+      ['.header-nexus-link','히든조합 계산기 이동',window.innerWidth<600?30:35],
+      ['#dpsCompareOpen','전체 DPS표',35],
+      ['#independentWindowToggle','독립 창 선택',35],
+      ['#btnBuildStandalone','조합·재료 독립 창',window.innerWidth<768?32:34],
+      
+
+    ];
+    definitions.forEach(function(definition){
+      document.querySelectorAll(definition[0]).forEach(function(control){
+        if(control.id==='btnBuildStandalone' && new URLSearchParams(window.location.search).get('nexusStandalone')==='build') return;
+        var base=definition[2];
+        control.style.setProperty('--nexus-control-base',base+'px');
+        if(control.classList.contains('nexus-labelled-control')) return;
+        control.classList.add('nexus-labelled-control');
+        control.dataset.nexusControlName=definition[1];
+        control.removeAttribute('title');
+        var icon=document.createElement('span');
+        icon.className='nexus-control-icon';
+        icon.setAttribute('aria-hidden','true');
+        while(control.firstChild) icon.appendChild(control.firstChild);
+        control.appendChild(icon);
+        var label=document.createElement('span');
+        label.className='nexus-action-label';
+        label.setAttribute('aria-hidden','true');
+        var text=document.createElement('span');
+        text.textContent=definition[1];
+        label.appendChild(text);
+        control.appendChild(label);
+      });
+    });
+    if(window.__nexusControlLabelsBound) return;
+    window.__nexusControlLabelsBound=true;
+    var current=null,timer=0,touchTarget=null,armed=null,armedUntil=0;
+    function findControl(target){return target && target.closest ? target.closest('.nexus-labelled-control') : null;}
+    function hide(){
+      clearTimeout(timer);
+      if(current) current.classList.remove('is-label-visible','is-label-touch');
+      current=null;armed=null;armedUntil=0;
+    }
+    function show(control,touch){
+      if(!control || control.disabled) return;
+      if(current && current!==control) hide();
+      current=control;
+      clearTimeout(timer);
+      control.classList.add('is-label-visible');
+      control.classList.toggle('is-label-touch',!!touch);
+      var label=control.querySelector('.nexus-action-label');
+      var width=Math.ceil(label.scrollWidth);
+      var base=parseFloat(control.style.getPropertyValue('--nexus-control-base')) || 34;
+      control.style.setProperty('--nexus-label-width',width+'px');
+      control.style.setProperty('--nexus-control-expanded',(base+width+12)+'px');
+      timer=setTimeout(hide,touch?3000:2000);
+    }
+    document.addEventListener('pointerover',function(event){
+      if(event.pointerType==='touch' || event.pointerType==='pen') return;
+      var control=findControl(event.target);
+      if(control && control!==findControl(event.relatedTarget)) show(control,false);
+    },true);
+    document.addEventListener('pointerout',function(event){
+      if(event.pointerType==='touch' || event.pointerType==='pen') return;
+      if(current && findControl(event.target)===current && findControl(event.relatedTarget)!==current) hide();
+    },true);
+    document.addEventListener('focusin',function(event){
+      var control=findControl(event.target);
+      if(control && control!==touchTarget) show(control,false);
+    });
+    document.addEventListener('focusout',function(event){
+      if(!touchTarget && current && findControl(event.relatedTarget)!==current) hide();
+    });
+    document.addEventListener('pointerdown',function(event){
+      var control=findControl(event.target);
+      var touch=event.pointerType==='touch' || event.pointerType==='pen';
+      touchTarget=touch?control:null;
+      if(touch && control) show(control,true);
+      else if(!control) hide();
+    },true);
+    document.addEventListener('pointercancel',function(){touchTarget=null;hide();},true);
+    document.addEventListener('click',function(event){
+      var control=findControl(event.target);
+      if(!control) return;
+      // 마우스/키보드는 한 번 클릭, 터치는 이름 확인 후 두 번째 탭에서 실행합니다.
+      if(control!==touchTarget || event.detail===0){touchTarget=null;hide();return;}
+      if(armed===control && Date.now()<armedUntil){touchTarget=null;hide();return;}
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      show(control,true);
+      armed=control;
+      armedUntil=Date.now()+3000;
+    },true);
+    document.addEventListener('keydown',function(event){
+      if(event.key==='Escape'){touchTarget=null;hide();}
+      if(event.key==='Enter' || event.key===' '){touchTarget=null;hide();}
+    },true);
+    window.addEventListener('resize',function(){hide();mountControlLabels();syncHeaderControlLayout();},{passive:true});
+    window.addEventListener('blur',function(){touchTarget=null;hide();});
+  }
+
+function init(){mountControlLabels();syncHeaderControlLayout();}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();
+</script>
+</head>
+<body>
+<div id="nexusBootScreen" aria-live="polite"><div class="boot-card"><div class="boot-title">개복디 넥서스 적용 중</div><div class="boot-desc">최신 빌드와 설정을 불러오는 중입니다.</div></div></div>
+    <header id="globalHeader" class="global-header">
+        <div class="gh-left">
+            <div class="gh-logo-text" id="ghLogoText">
+                <span class="gh-brand-mark" aria-hidden="true">
+                    <svg class="nexus-brand-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                        <defs>
+                            <linearGradient id="nexusStaticGold" x1="18" y1="14" x2="82" y2="86" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#FFF2C8"/>
+                                <stop offset=".48" stop-color="#DAB16D"/>
+                                <stop offset="1" stop-color="#A77839"/>
+                            </linearGradient>
+                        </defs>
+                        <circle cx="50" cy="50" r="45" fill="#17130D" stroke="url(#nexusStaticGold)" stroke-width="6"/>
+                        <circle cx="50" cy="50" r="38" stroke="#8F703F" stroke-width="1.5"/>
+                        <path d="M27 74V26H40L60 54V26H73V74H60L40 46V74Z" fill="url(#nexusStaticGold)" stroke="#FFF3D5" stroke-width=".8" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+                <div class="gh-title-wrap">
+                    <span class="gh-title" id="ghTitleText" data-action="showAppVersion" role="button" tabindex="0" aria-label="앱 버전 보기">개복디 넥서스</span>
+                </div>
+            </div>
+        </div>
+        <nav class="gh-center" aria-label="주요 화면">
+            <button type="button" id="btnViewUnitboard" class="gh-nav-btn active" data-action="switchMainView" data-view="unitboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span class="gh-nav-label">유닛도감</span></button>
+            <button type="button" id="btnViewHiddenboard" class="gh-nav-btn" data-action="switchMainView" data-view="hiddenboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v5m-7 5V8h14v5M5 17v4m14-4v4"/><rect x="2" y="13" width="6" height="4" rx="1"/><rect x="16" y="13" width="6" height="4" rx="1"/><rect x="9" y="3" width="6" height="5" rx="1"/></svg><span class="gh-nav-label">히든보드</span></button>
+
+            <template id="invenboardNavTemplate"><button type="button" id="btnViewInvenboard" class="gh-nav-btn" data-action="switchMainView" data-view="invenboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Zm-9 9 9 5 9-5M3 16l9 5 9-5"/></svg><span class="gh-nav-label">재료보드</span></button></template>
+            <template id="genealogyNavTemplate"><button type="button" id="btnViewGenealogy" class="gh-nav-btn" data-action="switchMainView" data-view="genealogy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7v4M5 16v-5h14v5"/><rect x="8" y="2" width="8" height="5" rx="1"/><rect x="2" y="16" width="6" height="5" rx="1"/><rect x="16" y="16" width="6" height="5" rx="1"/></svg><span class="gh-nav-label">유닛족보</span></button></template>
+        </nav>
+        <div class="gh-right">
+            <button type="button" id="btnBuildStandalone" class="gh-tool-btn" data-action="openBuildIndependentWindow" aria-label="조합·재료 독립 창" title="조합·재료 독립 창"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4" width="19" height="15" rx="2"/><rect x="11.5" y="11" width="7.5" height="5.5" rx="1"/></svg></button>
+            <a class="gh-tool-btn" data-nexus-view="dps" href="https://nxsforge.github.io/builder/" aria-label="개복디 빌더" title="개복디 빌더"><span aria-hidden="true">B</span></a>
+            <div class="gh-fontsize-ctrl">
+                <button type="button" class="gh-tool-btn gh-fontsize-trigger" data-action="toggleFontSizePopup" id="btnFontSizePopup" aria-label="글자 크기 조절" aria-controls="fontSizePopup" aria-expanded="false" title="글자 크기 조절">A</button>
+                <div id="fontSizePopup" class="gh-fontsize-popup" role="group" aria-label="글자 크기 조절" hidden>
+                    <button type="button" class="gh-icon-btn" data-action="decreaseFont" aria-label="글씨 축소">A−</button>
+                    <span class="gh-fontsize-val" id="fontSizeLabel" aria-live="polite">100%</span>
+                    <button type="button" class="gh-icon-btn" data-action="increaseFont" aria-label="글씨 확대">A+</button>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main id="mainLayout" class="main-layout">
+        <section class="panel-left hud-panel" id="panelLeft" aria-label="유닛도감">
+            <div class="archive-toolbar">
+                <div class="left-search-wrap" role="search"><div class="search-row"><div class="search-field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input type="text" id="unitSearchInput" class="search-input" placeholder="유닛명 · 땅굴*8" autocomplete="off" spellcheck="false" aria-label="유닛 검색" role="combobox" aria-autocomplete="list" aria-controls="unitSearchSuggestions" aria-expanded="false"></div><button type="button" id="btnRunUnitSearch" class="search-run-btn" title="검색 실행 (Enter)">실행</button></div><div id="unitSearchSuggestions" class="search-suggestions" role="listbox" aria-label="유닛 이름 후보" hidden></div></div>
+                <div class="left-tabs-wrap"><div id="unitboardTabs" class="unitboard-tabs" role="tablist" aria-label="유닛 분류"></div></div>
+                <details class="preset-disclosure">
+                    <summary><span>프리셋</span></summary>
+                    <div id="presetInlineWrap" class="preset-inline-wrap" role="group" aria-label="프리셋 목록"><div class="preset-panel-title" aria-hidden="true">프리셋 선택</div><div id="presetInlineTabBar" class="preset-inline-tab-bar"></div><div id="presetInlineBtnList" class="preset-inline-btn-list"></div></div>
+                </details>
+            </div>
+            <div class="archive-list-heading"><div><h2 id="archiveCategoryTitle">테바</h2><span class="archive-count" id="archiveCount"></span></div><div class="left-tab-actions"><button type="button" id="btnSelectAllTab" class="btn-tab-action" data-action="toggleSelectAllTab"><span>전체 선택</span><span class="action-icon" aria-hidden="true">+</span></button><button type="button" id="btnResetSelection" class="btn-tab-action btn-reset-action" data-action="resetUnitboard" title="현재 선택만 해제합니다. 보류·완료 내역과 재료 진행도는 유지합니다."><span>선택 초기화</span><span class="action-icon" aria-hidden="true">↺</span></button></div></div>
+            <div class="panel-unitboard-inner"><div id="tabContent" class="panel-body panel-unitboard-body"></div></div>
+        </section>
+        <aside class="build-inspector hud-panel" aria-label="나의 조합">
+            <section class="build-overview" aria-label="정수와 필요 재료">
+            <div class="inspector-heading"><div><h2>나의 조합</h2></div><div class="inspector-window-controls"></div></div>
+            <div id="cartEssenceSummary" class="cart-essence-summary" aria-live="polite"></div>
+            <section class="panel-costboard" id="panelCostboard" aria-label="필요 재료">
+                <details class="build-materials" open>
+                    <summary><span>필요 재료</span><span class="material-legend"><i></i>남은 수량 <span class="disclosure-chevron" aria-hidden="true">⌄</span></span></summary>
+                    <div class="panel-section costboard-section"><div id="costboardGrid" class="costboard-grid"></div></div>
+                </details>
+            </section>
+            </section>
+            <section class="panel-cart" id="panelCart" aria-label="선택 유닛">
+                <div class="cart-list-heading"><h3>선택 유닛</h3><span>YOUR BUILD LIST</span></div>
+                <div class="panel-section cart-section" id="cartSection"><div id="cartTabBar" class="cart-tab-bar"></div><div id="cartListArea" class="cart-list-area"></div></div>
+            </section>
+        </aside>
+        <section class="panel-right hud-panel" id="colRightPanel" aria-label="조합 보드">
+            <div class="panel-header hiddenboard-ph" id="boardMobileHeader"><div class="hiddenboard-ph-btns" id="hiddenboardGlobalActions"><button type="button" id="btnHideCompleted" class="ctrl-btn" data-action="toggleHideCompleted" aria-pressed="false" title="완료된 재료를 표시하고 있습니다"><span id="btnHideCompletedLabel">완료 숨기기</span><span class="action-state" id="btnHideCompletedState" aria-hidden="true">OFF</span></button><button type="button" id="btnRestoreAll" class="ctrl-btn reset-btn" data-action="restoreAllCompleted" title="전체 선택·보류·완료 내역 초기화 · 2초 내 다시 누르면 취소"><span id="btnRestoreAllLabel" aria-live="polite">전체 초기화</span><span class="reset-action-state" id="btnRestoreAllState" aria-hidden="true">↺</span></button></div></div>
+            <div id="boardContent" class="panel-body"></div>
+        </section>
+        <template id="genealogyPanelTemplate"><section id="genealogyPanel" class="genealogy-panel" hidden aria-label="유닛 족보">
+            <aside class="genealogy-sidebar" aria-label="최종 목표 목록">
+                <div class="genealogy-sidebar-controls">
+                    <div class="genealogy-sidebar-heading"><h2>최종 목표</h2><span id="genealogyTargetCount">31종</span></div>
+                    <div class="genealogy-grade-filters" role="group" aria-label="등급별 최종 목표 필터">
+                        <button type="button" data-genealogy-grade="all" aria-pressed="true">전체</button>
+                        <button type="button" data-genealogy-grade="슈퍼히든" aria-pressed="false">슈퍼</button>
+                        <button type="button" data-genealogy-grade="고유히든" aria-pressed="false">고유</button>
+                        <button type="button" data-genealogy-grade="히든" aria-pressed="false">히든</button>
+                    </div>
+                </div>
+                <div id="genealogyTargetList" class="genealogy-target-list" role="group" aria-label="최종 목표 31종"></div>
+            </aside>
+            <section class="genealogy-detail" aria-label="선택 유닛 정보">
+                <div class="genealogy-detail-heading"><h2>유닛 정보</h2></div>
+                <div id="genealogyDetailScroll" class="genealogy-detail-scroll">
+                    <div id="genealogyInfo" class="genealogy-info"></div>
+                </div>
+            </section>
+            <div class="genealogy-content">
+                <div class="genealogy-toolbar" aria-label="유닛 족보 및 트리 탐색 도구">
+                    <h2 class="genealogy-toolbar-title">유닛 족보</h2>
+                    <div class="genealogy-toolbar-buttons" role="group" aria-label="트리 펼침 및 이동">
+                        <button type="button" id="genealogyExpandAll">전체 펼치기</button>
+                        <button type="button" id="genealogyCollapseAll">전체 접기</button>
+                        <button type="button" id="genealogyGoBase">기초 재료 ↓</button>
+                        <button type="button" id="genealogyGoGoal">최종 목표 ↑</button>
+                    </div>
+                </div>
+                <div class="genealogy-workspace">
+                    <div id="genealogyScroll" class="genealogy-scroll" tabindex="0" aria-label="최종 목표부터 기초 재료까지의 계층형 유닛 족보">
+                        <div id="genealogyGraph" class="genealogy-graph"></div>
+                    </div>
+                </div>
+            </div>
+        </section></template>
+    </main>
+    <div id="boardActionStatus" class="action-feedback" role="status" aria-live="polite" aria-atomic="true"></div>
+    <div id="recipeTooltip" class="recipe-tooltip" role="tooltip" aria-live="polite"></div>
+<script>
+        (function(){
+            var files = ['data.js','config.js','app.js'];
+            function loadNext(index){
+                if(index >= files.length) return;
+                var src = files[index];
+                var script = document.createElement('script');
+                script.src = window.nexusAssetUrl(src);
+                script.async = false;
+                script.onload = function(){ loadNext(index + 1); };
+                script.onerror = function(){
+                    if(typeof window.nexusShowBootError === 'function') window.nexusShowBootError('N1002', new Error(src + ' load failed'));
+                };
+                document.body.appendChild(script);
+            }
+            loadNext(0);
+        })();
+    </script>
+</body>
+</html>
