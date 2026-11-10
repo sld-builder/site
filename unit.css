@@ -180,7 +180,7 @@ body.is-mobile .dps-base-unit-summary-item .dps-num-main{white-space:normal;over
 }
 body.is-mobile .dps-jewel-settings-body,body.is-narrow-mobile .dps-jewel-settings-body{padding:8px;}
 body.is-mobile .dps-jewel-config-grid,body.is-narrow-mobile .dps-jewel-config-grid{grid-template-columns:minmax(0,1fr);}
-body.is-mobile .dps-base-unit-slot-stack,body.is-narrow-mobile .dps-base-unit-slot-stack{gap:14px;padding:0;}
+body.is-mobile .dps-base-unit-slot-stack,body.is-narrow-mobile .dps-base-unit-slot-stack{gap:14px;padding:0 2px;}
 body.is-mobile .dps-base-unit-card,body.is-narrow-mobile .dps-base-unit-card{gap:10px;padding:10px 8px 16px;border:1px solid rgba(74,82,93,.42);border-radius:10px;background:rgba(11,12,15,.38);}
 body.is-mobile .dps-base-unit-card.is-empty,body.is-narrow-mobile .dps-base-unit-card.is-empty{gap:0;padding:10px 8px 14px;}
 body.is-mobile .dps-base-unit-entry,body.is-narrow-mobile .dps-base-unit-entry{grid-template-columns:minmax(0,1fr);gap:8px;align-items:stretch;min-height:49px;}
@@ -301,7 +301,7 @@ body .unit-sanctuary-card-head .unit-slot-number{display:grid;place-items:center
 body .unit-sanctuary-card-head strong{font-size:calc(11px * var(--app-font-scale));font-weight:600;color:#dceafa;}
 body .unit-sanctuary-card-head .unit-list-remove{margin-left:auto;min-width:28px;width:28px;min-height:28px;height:28px;padding:0;background:transparent;border-color:transparent;color:#9daec5;}
 body .unit-sanctuary-card-head .unit-list-remove:hover:not(:disabled){border-color:#9b6571;color:#ffccd4;}
-body .unit-sanctuary-fields{display:grid;grid-template-columns:minmax(0,.86fr) minmax(0,1.62fr) minmax(0,.98fr);gap:8px 7px;min-width:0;padding:9px 12px;}
+body .unit-sanctuary-fields{display:grid;grid-template-columns:minmax(0,.86fr) minmax(0,1.62fr) minmax(0,.98fr);gap:8px 7px;min-width:0;padding:9px;}
 body .unit-sanctuary-field{display:grid;align-content:start;grid-template-rows:auto 30px;gap:4px;min-width:0;}
 body .unit-sanctuary-field>span{display:block;min-width:0;color:#aebdd0;font-size:calc(10px * var(--app-font-scale));line-height:1.2;text-align:center;white-space:nowrap;}
 body .unit-sanctuary-field :is(input,select){display:block;width:100%;min-width:0;height:30px;min-height:30px;padding:3px 4px;border:1px solid #425569;border-radius:6px;background:#111820;color:#e5edf7;text-align:center;text-align-last:center;box-sizing:border-box;font-size:calc(11px * var(--app-font-scale));}
@@ -312,7 +312,7 @@ body .unit-sanctuary-card.is-invalid input{border-color:#d17979;}
 body .unit-sanctuary-footer{display:grid;grid-template-columns:minmax(0,1fr);min-width:0;}
 @container (max-width:420px){
   body .unit-sanctuary-panel{gap:10px;}
-  body .unit-sanctuary-fields{gap:7px 4px;padding:8px 12px;}
+  body .unit-sanctuary-fields{gap:7px 4px;padding:8px 6px;}
   body .unit-sanctuary-field>span{font-size:calc(9px * var(--app-font-scale));}
   body .unit-sanctuary-field :is(input,select){height:32px;min-height:32px;padding:2px;font-size:calc(10px * var(--app-font-scale));}
   body .unit-sanctuary-field{grid-template-rows:auto 32px;}
@@ -775,14 +775,12 @@ body #battleModeGuideDialog .battle-mode-guide-extra .battle-mode-guide-muted { 
   body #battleModeGuideDialog .battle-guide-tabs button { font-size:calc(12px * var(--app-font-scale)); }
 }
 
-/* V36: retain the original PC grid and use open rows instead of nested boxes. */
+/* 원본 PC 비율 유지 · 중첩 박스 대신 열린 행으로 정렬. */
 body .right-analytics-workspace :is(.analytics-summary-group,.analytics-unit-summary-group,.analytics-unit-slots-group),
 body .right-analytics-workspace #statDpsSummary,
 body #dpsBaseUnitSummary .dps-base-unit-summary-row,
 body #dpsBaseUnitSlotStack .unit-list-collection,
-body #dpsBaseUnitSlotStack .unit-slot-overview-card,
 body #unitSanctuaryPanel,
-body #unitSanctuaryPanel .unit-sanctuary-card,
 body :is(#dpsBaseUnitSlotStack,#unitSanctuaryPanel) .unit-basic-summary {
   border:0; border-radius:0; box-shadow:none; background:transparent; background-image:none;
 }
@@ -800,8 +798,6 @@ body #dpsBaseUnitSummary .dps-base-unit-results {
   background:transparent; border-top:1px solid var(--ui-line); margin-top:8px;
 }
 body #dpsBaseUnitSlotStack .unit-slot-cards-grid { gap:16px; }
-body #dpsBaseUnitSlotStack .unit-slot-overview-card,
-body #unitSanctuaryPanel .unit-sanctuary-card { border-bottom:1px solid var(--ui-line); }
 body #dpsBaseUnitSlotStack .unit-slot-card-main { background:transparent; }
 body #basicSettingsPanel2 .basic-settings-inline-section { background:transparent; }
 body #basicSettingsPanel2 .basic-settings-inline-section + .basic-settings-inline-section {
@@ -915,4 +911,315 @@ body #unitSanctuaryPanel .sanctuary-summary-skill { width:27%; }
 @media(max-width:600px) {
   body .right-analytics-workspace :is(#dpsBaseUnitSlotStack,#unitSanctuaryPanel) .unit-basic-summary :is(th,td) { padding:8px 4px; font-size:calc(10px * var(--app-font-scale)); }
   body .right-analytics-workspace :is(#dpsBaseUnitSlotStack,#unitSanctuaryPanel) .unit-basic-summary thead th { font-size:calc(10px * var(--app-font-scale)); }
+}
+/* 클리어 기록: 안내 창과 동일한 제목, 열린 본문, 항목별 정렬. 복사 원문은 유지. */
+body #traitClearRecordPanel {
+  width:min(660px,100%); max-height:calc(100dvh - 48px); border-radius:12px;
+  background:var(--ui-panel-body-bg); box-shadow:none;
+}
+body #traitClearRecordPanel .trait-clear-record-head {
+  min-height:44px !important; padding:7px 16px !important; flex-wrap:nowrap; gap:12px;
+}
+body #traitClearRecordTitle { font-size:var(--studio-header-font) !important; font-weight:600; line-height:1.4; }
+body #traitClearRecordPanel .trait-clear-record-controls { gap:8px; }
+body #traitClearRecordPanel .trait-preset-modal-close { width:28px; height:28px; min-width:28px; min-height:28px; }
+body #traitClearRecordPanel .trait-clear-record-copy {
+  min-height:28px; padding:4px 10px; border-radius:6px; background:transparent;
+  color:var(--ui-text); border-color:var(--ui-button-border); font:500 calc(11px * var(--app-font-scale))/1.4 var(--font-main);
+}
+body #traitClearRecordPanel .trait-clear-record-help { padding:16px 20px 0; font-size:calc(12px * var(--app-font-scale)); line-height:1.6; }
+body #traitClearRecordBody {
+  max-height:none; margin:0; padding:20px; border:0; border-radius:0; background:transparent;
+  font:400 calc(12px * var(--app-font-scale))/1.6 var(--font-main); white-space:normal;
+  scrollbar-width:thin; scrollbar-color:var(--ui-line-strong) transparent;
+}
+body #traitClearRecordBody::-webkit-scrollbar { display:block; width:6px; }
+body #traitClearRecordBody::-webkit-scrollbar-thumb { background:var(--ui-line-strong); border-radius:3px; }
+body .trait-clear-record-section { margin:0; padding:0 0 20px; }
+body .trait-clear-record-section + .trait-clear-record-section { padding-top:20px; border-top:1px solid var(--ui-line); }
+body .trait-clear-record-section:last-child { padding-bottom:0; }
+body .trait-clear-record-section h3 { margin:0 0 12px; color:var(--ui-text); font-size:calc(13px * var(--app-font-scale)); line-height:1.4; font-weight:600; }
+body .trait-clear-record-section dl { margin:0; }
+body .trait-clear-record-row { display:grid; grid-template-columns:minmax(100px,.8fr) minmax(0,1.5fr); gap:12px; padding:8px 0; border-bottom:1px solid var(--ui-line); }
+body .trait-clear-record-row dt { color:var(--ui-sub); }
+body .trait-clear-record-row dd { margin:0; text-align:right; color:var(--ui-text); overflow-wrap:break-word; }
+body .trait-clear-record-line { margin:0; padding:6px 0; white-space:pre-wrap; overflow-wrap:break-word; color:var(--ui-text); }
+body .trait-clear-record-empty { margin:0; padding:28px 0; text-align:center; color:var(--ui-sub); }
+/* 두 종류의 슬롯 번호에 같은 고정 규격을 적용해 늘어남·어긋남 방지. */
+body .right-analytics-workspace :is(#dpsBaseUnitSlotStack,#unitSanctuaryPanel) :is(.unit-slot-card-head,.unit-sanctuary-card-head) .unit-slot-number {
+  display:inline-flex; align-items:center; justify-content:center; align-self:center;
+  flex:0 0 28px; width:28px; min-width:28px; max-width:28px;
+  height:24px; min-height:24px; max-height:24px; padding:0; margin:0;
+  position:static; transform:none; overflow:hidden; box-sizing:border-box;
+  border:1px solid var(--ui-line-strong); border-radius:4px; background:transparent;
+  color:var(--ui-sub); font:500 calc(11px * var(--app-font-scale))/1 var(--font-main);
+  font-variant-numeric:tabular-nums; letter-spacing:0; text-align:center; box-shadow:none;
+}
+body #dpsBaseUnitSlotStack .unit-slot-heading { align-items:center; gap:8px; min-width:0; }
+body #unitSanctuaryPanel .unit-sanctuary-card-head { align-items:center; gap:8px; }
+@media(max-width:600px) {
+  body #traitClearRecordPanel { max-height:calc(100dvh - 16px); }
+  body #traitClearRecordPanel .trait-clear-record-head { padding-inline:12px !important; }
+  body #traitClearRecordPanel .trait-clear-record-help { padding:12px 12px 0; }
+  body #traitClearRecordBody { padding:16px 12px; }
+  body .trait-clear-record-row { grid-template-columns:minmax(80px,.8fr) minmax(0,1.5fr); gap:8px; }
+}
+
+/* 세로 PC·태블릿·모바일: 본문과 분리한 고정 전환 바. */
+body.is-tabbed .mobile-section-tabs {
+  position:fixed !important; top:var(--app-header-h,var(--mobile-header-h,44px)) !important;
+  left:0; right:0; z-index:59; width:100%; max-width:none; margin:0; padding:0 8px;
+  background:var(--ui-layout-bg); border:0; border-bottom:1px solid var(--ui-line-strong);
+  border-radius:0; box-shadow:none; transform:none;
+}
+body.is-tabbed .mobile-section-tabs .mobile-section-page-row {
+  display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:0; width:100%; padding:0;
+}
+body.is-tabbed .mobile-section-tabs .mobile-section-tab {
+  display:flex; align-items:center; justify-content:center; gap:0;
+  min-height:44px; height:44px; min-width:0; margin:0; padding:8px 4px;
+  border:0; border-bottom:2px solid transparent; border-radius:0;
+  background:transparent; color:var(--ui-sub); box-shadow:none; text-shadow:none;
+  font:500 calc(13px * var(--app-font-scale))/1.4 var(--font-main);
+}
+body.is-tabbed .mobile-section-tabs .mobile-tab-glyph { display:none; }
+body.is-tabbed .mobile-section-tabs .mobile-section-tab[aria-selected=true] {
+  background:transparent; color:var(--ui-text); border-bottom-color:var(--ui-button-active-border); box-shadow:none;
+}
+body.is-tabbed .mobile-section-tabs .mobile-section-tab:hover { background:transparent; color:var(--ui-text); }
+body.is-tabbed .mobile-section-tabs .mobile-section-tab:active { transform:none; }
+body.is-tabbed .mobile-page { scroll-padding-top:calc(var(--app-header-h,44px) + var(--mobile-tabs-h,44px) + 8px); }
+/* 클리어 기록은 일정한 창 크기를 유지하고 본문만 스크롤한다. */
+body #traitClearRecordPanel {
+  height:min(540px,calc(100dvh - 32px));
+  max-height:min(540px,calc(100dvh - 32px));
+}
+body #traitClearRecordBody { flex:1 1 0; min-height:0; overflow-y:auto; overflow-x:hidden; }
+@media(max-width:600px) {
+  body #traitClearRecordPanel { height:min(540px,calc(100dvh - 16px)); max-height:min(540px,calc(100dvh - 16px)); }
+}
+/* 스크롤 동작은 유지하고 스크롤바 표시만 모든 영역에서 숨긴다. */
+html, body, body * { scrollbar-width:none !important; -ms-overflow-style:none !important; }
+html::-webkit-scrollbar, body::-webkit-scrollbar, body *::-webkit-scrollbar { display:none !important; width:0 !important; height:0 !important; }
+body #traitClearRecordPanel { width:min(520px,100%); }
+
+/* 슬롯 자체는 분명한 카드로, 요약표·분석 결과의 바깥 프레임과 구분한다. */
+body .right-analytics-workspace :is(#dpsBaseUnitSlotStack,#unitSanctuaryPanel) :is(.unit-slot-overview-card,.unit-sanctuary-card) {
+  box-sizing:border-box; min-width:0; width:100%; margin:0;
+  border:1px solid var(--ui-unified-line-strong); border-radius:10px;
+  overflow:hidden; background:var(--ui-panel-body-bg); background-image:none; box-shadow:none;
+}
+body .right-analytics-workspace :is(#dpsBaseUnitSlotStack,#unitSanctuaryPanel) :is(.unit-slot-card-head,.unit-sanctuary-card-head) {
+  box-sizing:border-box; width:100%; min-height:48px; margin:0; padding:10px 12px;
+  display:flex; align-items:center; gap:8px; border:0; border-bottom:1px solid var(--ui-line-strong);
+  border-radius:0; background:var(--ui-integrated-head-bg); box-shadow:none;
+}
+body .right-analytics-workspace :is(#dpsBaseUnitSlotStack,#unitSanctuaryPanel) :is(.unit-slot-card-head,.unit-sanctuary-card-head) .unit-slot-number {
+  flex:0 0 28px; width:28px; min-width:28px; max-width:28px;
+  height:24px; min-height:24px; max-height:24px; margin:0; padding:0;
+  border:1px solid var(--ui-button-border); border-radius:4px;
+  background:var(--role-manual-input-bg); color:var(--ui-text);
+}
+body #dpsBaseUnitSlotStack .unit-slot-card-main { box-sizing:border-box; width:100%; padding:12px; border:0; border-radius:0; }
+body #unitSanctuaryPanel .unit-sanctuary-fields { box-sizing:border-box; width:100%; padding:12px; }
+body #unitSanctuaryPanel .unit-sanctuary-slots { gap:12px; }
+body #dpsBaseUnitSlotStack .unit-slot-overview-card.is-selected { border-color:var(--ui-button-active-border); }
+/* 글로벌 헤더 아래 선만 제거한다. 전환 탭의 선택 밑줄은 유지한다. */
+body .hdr.app-header { border-bottom:0 !important; box-shadow:none !important; }
+body .hdr.app-header::after { content:none !important; display:none !important; }
+/* 검정 배경·원본 열 비율을 유지하는 기능별 구획. */
+body .workspace-section-title {
+  min-width:0; margin:0; padding:14px 12px 10px;
+  color:var(--ui-integrated-head-text); font:600 calc(13px * var(--app-font-scale))/1.4 var(--font-main);
+  letter-spacing:0;
+}
+body .basic-info-resource-card, body .goal-settings-card { min-width:0; }
+body .settings-polish .basic-goal-section-heading { margin-bottom:8px; }
+body .settings-polish .basic-info-lane-group + .basic-info-lane-group { margin-top:12px; padding-top:16px; }
+body .trait-build-merged-panel .trait-build-section + .trait-build-section {
+  margin-top:8px; border-top:1px solid var(--ui-unified-line-strong);
+}
+body .trait-build-merged-panel .trait-build-section > .workspace-section-title { padding:14px 16px 0; }
+body .trait-build-merged-panel .trait-limit-group { padding:12px 16px 16px; }
+body .trait-build-merged-panel .trait-optimizer-row { padding:12px 16px 16px; }
+body .trait-standalone-panel { margin-top:20px; }
+body .right-analytics-workspace .analytics-detail-group > .workspace-section-title { padding:16px 12px 12px; }
+body .right-analytics-workspace :is(.ub-collection-head,.unit-sanctuary-heading) { margin-bottom:12px; }
+/* 승단 혜택과 점수 기준은 각각 독립된 영역으로 표시. */
+body #basicSettingsPanel3 #zeroGuideContent { padding:12px 0 16px; }
+body #basicSettingsPanel3 #zeroGuideContent > .zero-rank-info-section {
+  box-sizing:border-box; margin:0; padding:16px;
+  border:1px solid var(--ui-unified-line-strong); border-radius:10px;
+  background:var(--ui-panel-body-bg); box-shadow:none;
+}
+body #basicSettingsPanel3 #zeroGuideContent > .zero-rank-score-section { margin-top:16px; }
+body #basicSettingsPanel3 #zeroGuideContent .reference-section-heading { margin:0 0 12px; padding:0 0 12px; font-size:calc(13px * var(--app-font-scale)); }
+body #basicSettingsPanel3 #zeroGuideContent .zero-inline-benefits { padding:0; }
+body #basicSettingsPanel3 #zeroGuideContent .zero-inline-scores { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px 16px; padding:0; border:0; }
+body #basicSettingsPanel3 #zeroGuideContent .zero-score-help-panel { min-width:0; margin:0; padding:0; border:0; border-radius:0; background:transparent; }
+body #basicSettingsPanel3 #zeroGuideContent .zero-score-help-panel h5 { margin:0 0 8px; padding:0 0 8px; border-bottom:1px solid var(--ui-line); font-size:calc(12px * var(--app-font-scale)); font-weight:600; }
+body #basicSettingsPanel3 #zeroGuideContent .zero-current-benefits-items > span { padding:8px 0; line-height:1.5; font-size:calc(11px * var(--app-font-scale)); }
+body #basicSettingsPanel3 #zeroGuideContent .zero-rank-score-row { padding:8px 0; }
+body #basicSettingsPanel3 .zero-guide-close { margin-top:16px; min-height:36px; }
+/* 01~15: 같은 열과 같은 경계를 공유하는 개별 난이도 항목. */
+body #basicSettingsPanel3 .zero-calc-table-wrap { padding:0 12px 16px; }
+body #basicSettingsPanel3 .zero-calc-table-wrap > .workspace-section-title { padding:16px 0 12px; }
+body #basicSettingsPanel3 .zero-calc-table { --zero-progress-columns:calc(32px * var(--app-font-scale)) calc(32px * var(--app-font-scale)) calc(32px * var(--app-font-scale)) calc(76px * var(--app-font-scale)); --zero-progress-gap:6px; }
+body #basicSettingsPanel3 .zero-calc-list-head { padding:10px 37px 10px 13px; color:var(--ui-sub); }
+body #basicSettingsPanel3 #zeroScoreRows { gap:10px; }
+body #basicSettingsPanel3 #zeroScoreRows > .zero-calc-row {
+  min-width:0; border:1px solid var(--ui-unified-line-strong); border-radius:8px;
+  background:var(--ui-panel-body-bg); box-shadow:none; overflow:hidden;
+}
+body #basicSettingsPanel3 .zero-calc-row-bar { padding:0; gap:0; }
+body #basicSettingsPanel3 .zero-calc-row-head { position:relative; width:100%; margin:0; padding:12px 36px 12px 12px; gap:12px; box-sizing:border-box; }
+body #basicSettingsPanel3 .zero-calc-row-head::after { content:'＋'; position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--ui-sub); font-size:14px; line-height:1; }
+body #basicSettingsPanel3 .zero-calc-row.is-expanded .zero-calc-row-head::after { content:'－'; }
+body #basicSettingsPanel3 .zero-calc-row.is-expanded > .zero-calc-row-bar { background:var(--ui-integrated-head-bg); border-bottom:1px solid var(--ui-line-strong); box-shadow:none; }
+body #basicSettingsPanel3 .zero-calc-name { flex-wrap:nowrap; gap:8px; }
+body #basicSettingsPanel3 .zero-calc-name strong { font-size:calc(12px * var(--app-font-scale)); line-height:1.4; word-break:normal; }
+body #basicSettingsPanel3 .zero-calc-row-symbol { flex:0 0 26px; width:26px; height:24px; border-radius:4px; border-color:var(--ui-button-border); background:var(--role-manual-input-bg); font-size:calc(11px * var(--app-font-scale)); }
+body #basicSettingsPanel3 .zero-calc-inline-labels { display:none; }
+body #basicSettingsPanel3 .zero-calc-fields { display:grid; grid-template-columns:minmax(0,1fr); grid-template-rows:none; gap:0; padding:0 12px 12px; }
+body #basicSettingsPanel3 .zero-calc-input-row { display:grid; grid-template-columns:minmax(72px,.8fr) repeat(2,minmax(0,1fr)); align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--ui-line); }
+body #basicSettingsPanel3 .zero-calc-kind { color:var(--ui-text); font-size:calc(12px * var(--app-font-scale)); line-height:1.4; }
+body #basicSettingsPanel3 .zero-calc-input-footer { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; padding-top:12px; }
+body #basicSettingsPanel3 .zero-calc-field > span, body #basicSettingsPanel3 .zero-calc-metric > span:first-child { color:var(--ui-sub); font-size:calc(11px * var(--app-font-scale)); }
+@media(max-width:700px) {
+  body #basicSettingsPanel3 .zero-calc-table-wrap { padding-inline:9px; }
+  body #basicSettingsPanel3 .zero-calc-list-head { display:none; }
+  body #basicSettingsPanel3 .zero-calc-row-head { display:grid; grid-template-columns:minmax(0,1fr); gap:10px; padding:12px; }
+  body #basicSettingsPanel3 .zero-calc-row-head::after { top:24px; }
+  body #basicSettingsPanel3 .zero-calc-row-head .zero-calc-name { padding-right:20px; }
+  body #basicSettingsPanel3 .zero-calc-row:not(.is-expanded):has(.zero-calc-head-summary:not([hidden])) .zero-calc-inline-labels { display:grid; grid-template-columns:var(--zero-progress-columns); column-gap:var(--zero-progress-gap); color:var(--ui-sub); font-size:calc(10px * var(--app-font-scale)); text-align:center; justify-content:end; }
+  body #basicSettingsPanel3 .zero-calc-head-summary { width:100%; justify-content:flex-end; }
+  body #basicSettingsPanel3 .zero-calc-input-row { grid-template-columns:minmax(64px,.75fr) repeat(2,minmax(0,1fr)); gap:8px; }
+  body #basicSettingsPanel3 #zeroGuideContent > .zero-rank-info-section { padding:12px; }
+}
+
+body #basicSettingsPanel3 #zeroScoreRows > .zero-calc-row.is-expanded > .zero-calc-row-bar { background:var(--ui-integrated-head-bg); border-bottom:1px solid var(--ui-line-strong); box-shadow:none; }
+
+/* 헤더 마감: 기존 크기·배치를 유지하는 무광 검정과 절제된 파랑. */
+body {
+  --studio-head-bg:#101318;
+  --studio-head-line:#2c333d;
+  --studio-head-accent:#7196c4;
+  --studio-control-bg:#171d25;
+  --studio-control-hover:#202a37;
+}
+body :is(.basic-goal-title,.integrated-build-heading,.right-workspace-head,.trait-utility-section-head,
+  .trait-preset-modal-head,.unit-slot-modal-header,.dps-compare-header),
+body #dpsCompareModal > .dps-compare-header {
+  background:var(--studio-head-bg) !important;
+  border-bottom-color:var(--studio-head-line) !important;
+  box-shadow:none;
+}
+body :is(.basic-goal-brand-copy strong,.right-workspace-copy strong,.optimizer-head-title,
+  .trait-utility-section-label strong,.trait-preset-modal-head h2,.unit-slot-modal-heading strong,.dps-compare-header h2) {
+  color:#dbe4ef;
+}
+body :is(.basic-goal-section-heading,.rune-card-heading,.buff-config-heading,.basic-settings-inline-title,
+  .ub-collection-head,.unit-sanctuary-heading,.trait-scope-heading,.ub-edit-section > h3,.ub-expansion-head) {
+  background:#0c0f13; border-bottom-color:#252c35;
+}
+body .workspace-section-title { color:#b5c6db; }
+body :is(.unit-slot-card-head,.unit-sanctuary-card-head,.trait-preset-backup-card-head,.dps-jewel-card-head) {
+  background:#101318 !important; border-bottom-color:var(--studio-head-line) !important;
+}
+/* 탐색 기능: 정렬·높이는 그대로 두고 선택 면과 밑줄만 통일한다. */
+body :is(.integrated-tabs,.dps-compare-tabs,.battle-guide-tabs) { background:#090c10; }
+body .settings-polish .basic-settings-tabs .integrated-tab,
+body .analytics-polish .damage-board-subtabs .integrated-tab,
+body .integrated-tab, body .dps-compare-tab,
+body #battleModeGuideDialog .battle-guide-tabs button {
+  background:transparent; color:#929faf; border-bottom-color:transparent;
+  box-shadow:none; text-shadow:none;
+  transition:background-color .15s ease,color .15s ease,border-color .15s ease;
+}
+body .settings-polish .basic-settings-tabs .integrated-tab.is-active,
+body .analytics-polish .damage-board-subtabs .integrated-tab.is-active,
+body .integrated-tab.is-active, body .dps-compare-tab.is-active,
+body #battleModeGuideDialog .battle-guide-tabs button[aria-selected=true] {
+  background:#17202b; color:#e2ebf7; border-bottom-color:var(--studio-head-accent);
+  box-shadow:none; text-shadow:none;
+}
+body .settings-polish .basic-settings-tabs .integrated-tab:hover:not(.is-active),
+body .analytics-polish .damage-board-subtabs .integrated-tab:hover:not(:disabled):not(.is-active),
+body .integrated-tab:hover:not(:disabled):not(.is-active), body .dps-compare-tab:hover:not(.is-active),
+body #battleModeGuideDialog .battle-guide-tabs button:hover:not([aria-selected=true]) {
+  background:#11171f; color:#c7d4e5; box-shadow:none; text-shadow:none;
+}
+/* 제목 안의 보조 기능은 같은 무광 버튼 문법을 사용한다. */
+body :is(.hdr.app-header,.right-workspace-head,.trait-preset-modal-head,.unit-slot-modal-header,
+  .dps-compare-header,.unit-sanctuary-heading,.ub-collection-head,.unit-slot-card-head,.unit-sanctuary-card-head)
+  :is(button,a.ui-action-btn),
+body .unit-sanctuary-guide-trigger {
+  border-color:#3b4655; border-radius:6px; background:var(--studio-control-bg);
+  color:#b9c9dc; box-shadow:none; text-shadow:none;
+}
+body :is(.hdr.app-header,.right-workspace-head,.trait-preset-modal-head,.unit-slot-modal-header,
+  .dps-compare-header,.unit-sanctuary-heading,.ub-collection-head,.unit-slot-card-head,.unit-sanctuary-card-head)
+  :is(button,a.ui-action-btn):hover:not(:disabled),
+body .unit-sanctuary-guide-trigger:hover {
+  background:var(--studio-control-hover); border-color:#6a87ac; color:#e3ebf6;
+}
+body :is(.trait-preset-modal-close,.unit-slot-modal-close,.dps-compare-close) {
+  border:1px solid #3b4655; background:var(--studio-control-bg); color:#b9c9dc;
+  border-radius:6px; box-shadow:none; font-weight:400;
+}
+body :is(.integrated-tab,.dps-compare-tab,.trait-preset-modal-close,.unit-slot-modal-close,.dps-compare-close,
+  .right-workspace-clear-record,.unit-sanctuary-guide-trigger):focus-visible {
+  outline:2px solid #84a8d5; outline-offset:-3px;
+}
+@media(prefers-reduced-motion:reduce) {
+  body :is(.integrated-tab,.dps-compare-tab), body #battleModeGuideDialog .battle-guide-tabs button { transition:none; }
+}
+
+/* 유닛 구성·성소 정보: 장식 배경 없이 제목과 구분선으로 구획한다. */
+body .right-analytics-workspace :is(.ub-collection-head,.unit-sanctuary-heading) {
+  background:transparent; background-image:none; border-radius:0;
+  border:0; border-bottom:1px solid var(--studio-head-line);
+  box-shadow:none; padding:12px 0; margin:0 0 12px;
+  overflow:visible; clip-path:none;
+}
+body .right-analytics-workspace :is(.ub-collection-head,.unit-sanctuary-heading)::before,
+body .right-analytics-workspace :is(.ub-collection-head,.unit-sanctuary-heading)::after { content:none; }
+body .right-analytics-workspace :is(.ub-collection-head,.unit-sanctuary-heading) h3 {
+  color:#dbe4ef; font-size:calc(13px * var(--app-font-scale)); font-weight:600; line-height:1.4;
+}
+
+/* DPS 비교표: 기존 행·열을 보존하고 읽는 기준과 교차 위치를 드러낸다. */
+body #dpsCompareModal .dps-compare-reading-guide {
+  flex:none; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap;
+  gap:6px 16px; padding:10px 12px; border-bottom:1px solid #2c333d;
+  background:#0d1117; color:#aab8cb; font-size:calc(11px * var(--app-font-scale)); line-height:1.5;
+}
+body #dpsCompareModal .dps-compare-reading-guide b { color:#dbe4ef; font-weight:600; }
+body #dpsCompareModal .dps-compare-reading-key { color:#b9cddd; }
+body #dpsCompareModal .dps-compare-matrix tbody th {
+  position:sticky; left:0; z-index:3; border-right-color:#586a80;
+}
+body #dpsCompareModal .dps-compare-matrix thead th:first-child { left:0; z-index:5; }
+body #dpsCompareModal .dps-compare-matrix tbody td.is-reference-column:not(.is-current) {
+  background:#1a2939; color:#e0eef7;
+}
+body #dpsCompareModal .dps-compare-matrix tbody tr.is-reference-row td:not(.is-current) {
+  border-top:1px solid #58728d; border-bottom-color:#58728d; color:#deebf7;
+}
+body #dpsCompareModal .dps-compare-matrix tbody td.is-current {
+  background:#29445e; color:#fff; box-shadow:inset 0 0 0 2px #bad1e9; text-shadow:none;
+  font-weight:700;
+}
+body #dpsCompareModal .dps-compare-matrix tbody td.is-unavailable {
+  color:#637185; background:#10151c;
+}
+body #dpsCompareModal .dps-compare-matrix tbody tr:hover td:not(.is-current) {
+  background:#253448; color:#edf3fa;
+}
+body #dpsCompareModal .dps-compare-matrix tbody tr:nth-child(5n) :is(th,td) { border-bottom-color:#526173; }
+body #dpsCompareModal .dps-compare-floor-table tbody tr.is-current :is(th,td) {
+  background:#29445e; text-shadow:none;
+}
+@media(max-width:700px) {
+  body #dpsCompareModal .dps-compare-reading-guide { padding:8px 10px; font-size:calc(10px * var(--app-font-scale)); }
 }

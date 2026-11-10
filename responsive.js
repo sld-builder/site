@@ -24,7 +24,7 @@
   /* ── 01 · 반응형 상태·측정·복원 ── */
   /* 반응형 상태·측정 헬퍼 */
   const TABBED_PAGES = [
-    { key: 'basic', label: '기본 정보', selectors: ['.col-left'] },
+    { key: 'basic', label: '기본 설정', selectors: ['.col-left'] },
     { key: 'trait', label: '특성 관리', selectors: ['.trait-board-panel'] },
     { key: 'specUnit', label: '분석 보드', selectors: ['.stat-dps-card'] }
   ];
@@ -127,7 +127,7 @@
     state.layoutPortrait = h > w;
     syncTabbedLayout();
     const basicTopTab = state.tabs?.querySelector('#mobileTab-basic .mobile-tab-label');
-    if (basicTopTab) basicTopTab.textContent = mode === 'is-mobile' || mode === 'is-tablet' ? '기본 설정' : '기본 정보';
+    if (basicTopTab) basicTopTab.textContent = '기본 설정';
     updateMobileOffsets();
   }
   /* ── 03 · 탭 레이아웃·복원 ── */

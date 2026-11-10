@@ -3224,9 +3224,49 @@ function createDpsClearReport(){
 let traitClearRecordText='';
 let traitClearRecordTrigger=null;
 let traitClearRecordCopyTimer=0;
-function renderTraitClearRecord(text){
+function renderTraitClearRecord(text,{empty=false}={}){
   const container=$('traitClearRecordBody');
-  if(container) container.textContent=text;
+  if(!container) return;
+  container.replaceChildren();
+  container.classList.toggle('is-empty',empty);
+  if(empty){
+    const message=document.createElement('p');
+    message.className='trait-clear-record-empty';
+    message.setAttribute('role','status');
+    message.textContent=text;
+    container.appendChild(message);
+    return;
+  }
+  // Present the existing report in sections. Clipboard text and report calculations stay unchanged.
+  String(text).split(/\n\s*\n/).filter(Boolean).forEach((block,index)=>{
+    const [title,...lines]=block.split('\n');
+    const section=document.createElement('section');
+    section.className='trait-clear-record-section';
+    const heading=document.createElement('h3');
+    heading.textContent=index===0 && title==='클리어 기록 보고서' ? '전투 요약' : title;
+    section.appendChild(heading);
+    const list=document.createElement('dl');
+    lines.forEach(line=>{
+      const pair=line.match(/^([^:：]+):\s*(.*)$/);
+      if(pair){
+        const row=document.createElement('div');
+        row.className='trait-clear-record-row';
+        const label=document.createElement('dt');
+        const value=document.createElement('dd');
+        label.textContent=pair[1];
+        value.textContent=pair[2];
+        row.append(label,value);
+        list.appendChild(row);
+      }else{
+        const paragraph=document.createElement('p');
+        paragraph.className='trait-clear-record-line';
+        paragraph.textContent=line;
+        section.appendChild(paragraph);
+      }
+    });
+    if(list.children.length) section.insertBefore(list,heading.nextSibling);
+    container.appendChild(section);
+  });
 }
 function resetTraitClearRecordCopyButtons(){
   clearTimeout(traitClearRecordCopyTimer);
@@ -3244,13 +3284,14 @@ function openTraitClearRecord(){
   resetTraitClearRecordCopyButtons();
   if(traitClearRecordText) renderTraitClearRecord(traitClearRecordText);
   else{
-    const body=$('traitClearRecordBody');
-    if(body) body.textContent=report.error || '현재 표시할 클리어 기록이 없습니다.';
+    renderTraitClearRecord(report.error || '현재 표시할 클리어 기록이 없습니다.',{empty:true});
   }
   document.querySelectorAll('[data-clear-record-copy]').forEach(button=>{button.disabled=!traitClearRecordText;});
   overlay.hidden=false;
   document.body.classList.add('trait-clear-record-open');
   panel.focus();
+  const body=$('traitClearRecordBody');
+  if(body) body.scrollTop=0;
 }
 function closeTraitClearRecord(){
   const overlay=$('traitClearRecordOverlay');

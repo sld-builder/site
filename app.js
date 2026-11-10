@@ -900,11 +900,12 @@ function dpsCompareMatrixHtml(coop){
         (diff==='Abyss road' && pen>DPS_CONFIG.dpsTable.abyssRoadPenanceMax);
       const displayed=unavailable ? '-' : formatDpsCompareValue(dpsTablePreviewValue(diff,pen,round,{battleMode:coop?'coop':'solo',teamCount}));
       const current=diff===currentDiff && pen===currentPenance;
-      return `<td${current?' class="is-current" aria-current="true"':''} aria-label="${escapeHtml(displayed)}">${displayed}</td>`;
+      const classes=[current?'is-current':'',diff===currentDiff?'is-reference-column':'',unavailable?'is-unavailable':''].filter(Boolean).join(' ');
+      return `<td${classes?` class="${classes}"`:''}${current?' aria-current="true"':''} aria-label="${escapeHtml(diff)} · ${pen}고행 · ${escapeHtml(displayed)}">${displayed}</td>`;
     }).join('');
-    return `<tr><th scope="row"${pen===currentPenance?' class="is-current"':''}>${pen}고행</th>${values}</tr>`;
+    return `<tr${pen===currentPenance?' class="is-reference-row"':''}><th scope="row"${pen===currentPenance?' class="is-current"':''}>${pen}고행</th>${values}</tr>`;
   }).join('');
-  return `<div class="dps-compare-scroll"><table class="dps-compare-matrix${coop?' is-coop':' is-solo'}" aria-label="${coop?'협동전':'개인전'} 고행별 전체 난이도 DPS"><thead><tr><th scope="col">고행</th>${head}</tr></thead><tbody>${rows}</tbody></table></div>`;
+  return `<div class="dps-compare-reading-guide"><span><b>${round} 라운드</b> · 난이도 → / 고행 ↓</span><span class="dps-compare-reading-key">강조된 행·열: ${escapeHtml(currentDiff)} · ${currentPenance}고행</span></div><div class="dps-compare-scroll"><table class="dps-compare-matrix${coop?' is-coop':' is-solo'}" aria-label="${coop?'협동전':'개인전'} 고행별 전체 난이도 DPS"><thead><tr><th scope="col">고행</th>${head}</tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 function dpsCompareFloorsHtml(){
   const teamCount=selectedDpsTableTeamCount();
@@ -926,7 +927,7 @@ function dpsCompareFloorsHtml(){
     });
     return `<section class="dps-compare-floor" aria-label="${item.title} 전체 층 DPS"><h3>${item.title}</h3><div class="dps-compare-floor-halves">${halves.join('')}</div></section>`;
   });
-  return `<div class="dps-compare-scroll"><div class="dps-compare-floor-grid">${tables.join('')}</div></div>`;
+  return `<div class="dps-compare-reading-guide"><span><b>층별 DPS 비교</b> · 왼쪽부터 낮은 층 → 높은 층</span><span class="dps-compare-reading-key">테두리 강조: 현재 설정한 층</span></div><div class="dps-compare-scroll"><div class="dps-compare-floor-grid">${tables.join('')}</div></div>`;
 }
 function renderDpsCompareContent(){
   const content=$('dpsCompareContent');
@@ -1872,17 +1873,18 @@ function buildZeroScoreCalcRow(config){
     <div class="zero-calc-row-bar">
       <button class="zero-calc-row-head" type="button" aria-expanded="false" aria-controls="zeroScoreDetails${config.number}" aria-describedby="zeroScoreSummary${config.number}" aria-label="${name} 승단 점수 입력 펼치기">
         <span class="zero-calc-name"><span class="zero-calc-row-symbol" aria-hidden="true">${String(config.number).padStart(2,'0')}</span><strong>${name}</strong></span>
+        <span class="zero-calc-inline-labels" aria-hidden="true"><span>구분</span><span>현재</span><span>목표</span><span>목표 추가점수</span></span>
         <span class="zero-calc-head-summary" id="zeroScoreSummary${config.number}" hidden></span>
       </button>
     </div>
     <div class="zero-calc-details" id="zeroScoreDetails${config.number}" hidden>
       <div class="zero-calc-fields">
-        ${field(`현재 ${generalLabel}`,generalCurrent)}
-        ${field(`목표 ${generalLabel}`,generalTarget)}
-        ${field(`현재 ${honorLabel}`,honorCurrent)}
-        ${field(`목표 ${honorLabel}`,honorTarget)}
+        <div class="zero-calc-input-row"><span class="zero-calc-kind">${generalLabel}</span>${field('현재',generalCurrent)}${field('목표',generalTarget)}</div>
+        <div class="zero-calc-input-row"><span class="zero-calc-kind">${honorLabel}</span>${field('현재',honorCurrent)}${field('목표',honorTarget)}</div>
+        <div class="zero-calc-input-footer">
         <div class="zero-calc-metric"><span>24스타</span>${starControl}</div>
         <div class="zero-calc-metric zero-calc-score"><span>목표 추가점수</span><b class="zero-row-score">+0</b></div>
+        </div>
       </div>
     </div>
   </article>`;
