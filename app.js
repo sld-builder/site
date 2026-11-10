@@ -1278,9 +1278,38 @@ function bindDamageBoardSwitchEvents(){
   const guide=$('battleModeGuideDialog');
   const guideOpen=$('battleModeGuideOpen');
   if(guide && guideOpen){
+    const tabs=[...guide.querySelectorAll('[data-battle-guide-tab]')];
+    const panels=[...guide.querySelectorAll('[data-battle-guide-panel]')];
+    const selectGuideTab=(name,focus=false)=>{
+      const selected=tabs.find(tab=>tab.dataset.battleGuideTab===name);
+      if(!selected) return;
+      tabs.forEach(tab=>{
+        const active=tab===selected;
+        tab.setAttribute('aria-selected',String(active));
+        tab.tabIndex=active ? 0 : -1;
+      });
+      panels.forEach(panel=>{
+        panel.hidden=panel.dataset.battleGuidePanel!==name;
+        if(!panel.hidden) panel.scrollTop=0;
+      });
+      if(focus) selected.focus({preventScroll:true});
+    };
+    tabs.forEach((tab,index)=>{
+      tab.addEventListener('click',()=>selectGuideTab(tab.dataset.battleGuideTab));
+      tab.addEventListener('keydown',event=>{
+        let next=index;
+        if(event.key==='ArrowRight') next=(index+1)%tabs.length;
+        else if(event.key==='ArrowLeft') next=(index+tabs.length-1)%tabs.length;
+        else if(event.key==='Home') next=0;
+        else if(event.key==='End') next=tabs.length-1;
+        else return;
+        event.preventDefault();
+        selectGuideTab(tabs[next].dataset.battleGuideTab,true);
+      });
+    });
     guideOpen.addEventListener('click',()=>{
-      const excluded=guide.querySelector('.battle-mode-guide-extra');
-      if(excluded) excluded.open=false;
+      const selected=tabs.find(tab=>tab.getAttribute('aria-selected')==='true');
+      selectGuideTab(selected?.dataset.battleGuideTab || 'compare');
       if(!guide.open) guide.showModal();
     });
     guide.querySelector('[data-battle-mode-guide-close]')?.addEventListener('click',()=>guide.close());

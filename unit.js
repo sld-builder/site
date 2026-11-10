@@ -914,8 +914,8 @@ function dpsBaseUnitSlotsHtml(slots){
   return `<section class="unit-list-collection" aria-label="유닛 슬롯 관리"><header class="ub-collection-head"><h3>유닛 구성 <span>${visibleCount} / 10</span></h3><small>카드를 눌러 상세 설정</small></header>${basicInfo}<div class="unit-slot-cards-grid" aria-label="유닛 슬롯 카드 목록">${rows}${next}</div></section>`;
 }
 
-// 성소 정보: 버스 성소의 스킬 목록을 그대로 사용하며 유닛 보드·프리셋에서 같은 상태를 공유한다.
-const DPS_SANCTUARY_SKILLS=Object.freeze(SANCTUARY_SKILL_DAMAGE_DATA.map(skill=>skill[0]));
+// 유닛 보드 기록용 목록. 커럽션은 버스 성소의 데미지 계산 목록과 별도로 관리한다.
+const DPS_SANCTUARY_SKILLS=Object.freeze([...SANCTUARY_SKILL_DAMAGE_DATA.map(skill=>skill[0]),'커럽션']);
 const DPS_SANCTUARY_BLANK_SLOT=()=>({start:0,end:0,skill1:'',count1:0,skill2:'',count2:0});
 /* 08-D · 성소 스킬·횟수·입력 상태 */
 function normalizeDpsSanctuaryInfo(value){
@@ -976,7 +976,7 @@ function renderDpsSanctuarySummary(info=currentDpsSanctuaryInfo()){
       `<td>${slot.skill1 ? `${slot.skill1} ${slot.count1}회` : '선택 안함'}</td>`+
       `<td>${slot.skill2 ? `${slot.skill2} ${slot.count2}회` : '선택 안함'}</td></tr>`];
   });
-  summary.innerHTML=`<table aria-label="설정된 성소 정보 기본정보"><thead><tr>`+
+  summary.innerHTML=`<table aria-label="설정된 성소 정보 기본정보"><colgroup><col class="sanctuary-summary-slot"><col class="sanctuary-summary-round"><col class="sanctuary-summary-round"><col class="sanctuary-summary-skill"><col class="sanctuary-summary-skill"></colgroup><thead><tr>`+
     `<th scope="col">슬롯 번호</th><th scope="col">${startLabel}</th><th scope="col">${endLabel}</th>`+
     `<th scope="col">1번 스킬 / 사용 횟수</th><th scope="col">2번 스킬 / 사용 횟수</th>`+
     `</tr></thead><tbody>${rows.join('')||'<tr><td colspan="5" class="unit-basic-empty">선택한 정보가 없습니다</td></tr>'}</tbody></table>`;
@@ -1056,18 +1056,22 @@ function updateDpsSanctuaryField(control,render=true){
 }
 function bindDpsSanctuaryEvents(){
   const guide=$('unitSanctuaryGuideDetails');
-  if(guide){
-    const trigger=guide.querySelector('summary');
-    guide.addEventListener('toggle',()=>trigger.setAttribute('aria-expanded',String(guide.open)));
-    document.addEventListener('pointerdown',event=>{
-      if(guide.open && !guide.contains(event.target)) guide.open=false;
+  const trigger=$('unitSanctuaryGuideOpen');
+  if(guide && trigger){
+    trigger.addEventListener('click',()=>{
+      if(!guide.open) guide.showModal();
+      trigger.setAttribute('aria-expanded','true');
+      guide.querySelector('.sanctuary-guide-body').scrollTop=0;
     });
-    document.addEventListener('keydown',event=>{
-      if(event.key==='Escape' && guide.open){
-        guide.open=false;
-        trigger.focus({preventScroll:true});
-        event.stopPropagation();
-      }
+    guide.querySelector('[data-sanctuary-guide-close]')?.addEventListener('click',()=>guide.close());
+    guide.addEventListener('close',()=>{
+      trigger.setAttribute('aria-expanded','false');
+      trigger.focus({preventScroll:true});
+    });
+    guide.addEventListener('click',event=>{
+      if(event.target!==guide) return;
+      const bounds=guide.getBoundingClientRect();
+      if(event.clientX<bounds.left || event.clientX>bounds.right || event.clientY<bounds.top || event.clientY>bounds.bottom) guide.close();
     });
   }
   $('unitSanctuaryAdd')?.addEventListener('click',()=>{

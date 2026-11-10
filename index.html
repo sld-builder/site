@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <script>
-window.APP_VERSION = "sld-builder-v1";
+window.APP_VERSION = "sld-builder-V34";
 window.DPS_BUILD_VERSION = window.APP_VERSION;
 window.DPS_STANDALONE_VIEW = (function(){
   var requested=new URLSearchParams(window.location.search).get('dpsWindow');
@@ -224,14 +224,14 @@ html:not(.dps-booting) #dpsBootScreen{display:none}
 <meta content="개복디 빌더 - 통합 빌드 계산 HUB" property="og:title"/>
 <meta content="특성 투자·재화 사용량 계산부터 스펙·DPS 분석까지 한 번에, 통합 빌드 계산 HUB" property="og:description"/>
 <!-- OG/Twitter 이미지 캐시: 앱 버전 변경 시 아래 세 URL을 같은 버전으로 맞춥니다. -->
-<meta content="https://sld-builder.github.io/site/logo.png?v=sld-builder-v1" property="og:image"/>
-<meta content="https://sld-builder.github.io/site/logo.png?v=sld-builder-v1" property="og:image:secure_url"/>
+<meta content="https://sld-builder.github.io/site/logo.png?v=sld-builder-V34" property="og:image"/>
+<meta content="https://sld-builder.github.io/site/logo.png?v=sld-builder-V34" property="og:image:secure_url"/>
 <meta content="image/png" property="og:image:type"/>
 <meta content="개복디 빌더 로고" property="og:image:alt"/>
 <meta content="summary_large_image" name="twitter:card"/>
 <meta content="개복디 빌더 - 통합 빌드 계산 HUB" name="twitter:title"/>
 <meta content="특성 투자·재화 사용량 계산부터 스펙·DPS 분석까지 한 번에, 통합 빌드 계산 HUB" name="twitter:description"/>
-<meta content="https://sld-builder.github.io/site/logo.png?v=sld-builder-v1" name="twitter:image"/>
+<meta content="https://sld-builder.github.io/site/logo.png?v=sld-builder-V34" name="twitter:image"/>
 <meta content="개복디 빌더 로고" name="twitter:image:alt"/>
 <link href="https://cdn.jsdelivr.net" rel="preconnect"/>
 <link crossorigin="" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet"/>
@@ -430,7 +430,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </svg>
 </div>
 <div class="hdr-title-wrap">
-<span class="header-kicker">SLD / BUILD STUDIO</span>
+
 <h1 id="appTitleView" role="button" tabindex="0" aria-label="앱 버전 보기">개복디 빌더</h1>
 </div>
 </div>
@@ -892,6 +892,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
                           class="zero-rank-info-section zero-rank-benefits-section"
                           aria-label="승단 혜택"
                         >
+                          <h4 class="reference-section-heading">승단 혜택</h4>
                           <section
                             id="zeroTitleBenefitsPopover"
                             class="zero-title-benefits-popover zero-inline-benefits"
@@ -937,6 +938,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
                           class="zero-rank-info-section zero-rank-score-section"
                           aria-label="승단 점수 기준"
                         >
+                          <h4 class="reference-section-heading">점수 기준</h4>
                           <section
                             id="zeroRankScorePopover"
                             class="zero-rank-score-popover zero-inline-scores"
@@ -1219,14 +1221,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <section id="unitSanctuaryPanel" class="unit-sanctuary-panel" aria-label="성소 정보">
   <header class="unit-sanctuary-heading">
     <h3>성소 정보 <span id="unitSanctuaryCount">0 / 10</span></h3>
-    <details class="unit-sanctuary-help" id="unitSanctuaryGuideDetails"><summary id="unitSanctuaryGuideOpen" aria-label="성소 정보 사용 방법" aria-expanded="false">?</summary>
-      <div class="unit-sanctuary-guide" role="group" aria-label="성소 정보 사용 방법"><strong>사용 방법</strong><ul>
-        <li>적용 라운드·층과 스킬, 사용 횟수를 입력하세요</li>
-        <li>0 또는 선택 안함은 미입력입니다</li>
-        <li>두 스킬의 사용 횟수 합계는 최대 4입니다</li>
-        <li>프리셋에 저장되고 기록 복사 시 포함됩니다</li>
-      </ul></div>
-    </details>
+    <button type="button" class="unit-sanctuary-guide-trigger" id="unitSanctuaryGuideOpen" aria-label="성소 정보 사용 방법" aria-expanded="false" aria-haspopup="dialog" aria-controls="unitSanctuaryGuideDetails">사용 방법</button>
     <button type="button" class="unit-sanctuary-reset" id="unitSanctuaryReset" aria-label="전체 초기화"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 10v7M14 10v7"/></svg></button>
   </header>
   <div id="unitSanctuarySummary" class="unit-basic-summary unit-sanctuary-summary" aria-label="설정된 성소 정보 요약"></div>
@@ -1264,7 +1259,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       >
         <header class="dps-compare-header">
           <h2 id="dpsCompareModalTitle">
-            <span class="dps-compare-title-mark" aria-hidden="true"><svg class="ui-header-glyph" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#dpsUiSparklesGlyph"/></svg></span><span id="dpsCompareModalLabel">DPS표</span>
+            <span id="dpsCompareModalLabel">DPS표</span>
           </h2>
           <button type="button" class="dps-compare-close" data-dps-compare-close aria-label="DPS표 닫기">
             ×
@@ -1359,21 +1354,63 @@ loadScriptSequence(['data.js','calc.js','app.js','unit.js','preset.js','responsi
     <footer class="unit-slot-modal-footer"><button type="button" class="unit-slot-modal-cancel" id="unitSlotModalClose" data-unit-detail-close>취소</button><button type="button" class="unit-slot-modal-done" data-unit-detail-confirm>설정 완료</button></footer>
   </section>
 </div>
+<dialog id="unitSanctuaryGuideDetails" class="unit-sanctuary-guide-dialog" aria-labelledby="unitSanctuaryGuideTitle">
+  <header class="trait-preset-modal-head">
+    <h2 id="unitSanctuaryGuideTitle">성소 정보 사용 방법</h2>
+    <button type="button" class="trait-preset-modal-close" data-sanctuary-guide-close aria-label="사용 방법 닫기">×</button>
+  </header>
+  <div class="sanctuary-guide-body">
+    <p class="sanctuary-guide-intro">어느 구간에 어떤 성소 스킬을 사용했는지 기록합니다. 버스 성소의 설정과는 별도로 관리됩니다.</p>
+    <ol class="sanctuary-guide-steps">
+      <li><h3>성소 슬롯 추가</h3><p>성소 정보 아래의 ‘성소 슬롯 추가’를 누르세요. 최대 10개까지 입력할 수 있습니다.</p></li>
+      <li><h3>시작과 종료 구간 입력</h3><p>스킬을 사용하는 시작·종료 라운드 또는 층을 입력하세요. 종료 구간은 시작 구간 이상이어야 합니다.</p></li>
+      <li><h3>스킬과 사용 횟수 선택</h3><p>1번·2번 스킬을 각각 선택하세요. 선택한 스킬은 최소 1회, 두 스킬의 사용 횟수 합계는 최대 4회입니다.</p></li>
+      <li><h3>프리셋 저장과 기록 확인</h3><p>설정을 보관하려면 프리셋을 저장하세요. 유효한 구간과 스킬이 입력된 슬롯은 클리어 기록 복사에 포함됩니다.</p></li>
+    </ol>
+    <table class="sanctuary-guide-ranges">
+      <caption>입력 가능한 구간</caption>
+      <tbody>
+        <tr><th scope="row">일반 라운드</th><td>1~300 라운드</td></tr>
+        <tr><th scope="row">도전의 탑</th><td>1~90층</td></tr>
+        <tr><th scope="row">행성탐사</th><td>1~100층</td></tr>
+      </tbody>
+    </table>
+    <p class="sanctuary-guide-note">라운드·층의 0과 스킬의 ‘선택 안함’은 미입력입니다. 아직 입력을 마치지 않은 슬롯은 요약에 표시되더라도 기록 복사에서 제외될 수 있습니다.</p>
+  </div>
+</dialog>
 <!-- 전투 모드 안내: 계산·프리셋과 독립적인 표시 전용 대화상자 -->
 <dialog id="battleModeGuideDialog" class="battle-mode-guide-dialog" aria-labelledby="battleModeGuideTitle">
   <header class="battle-mode-guide-head trait-preset-modal-head"><div class="trait-preset-modal-heading"><span class="trait-preset-modal-mark" aria-hidden="true"><svg class="ui-header-glyph" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#dpsUiSparklesGlyph"/></svg></span><h2 id="battleModeGuideTitle">전투 모드 · 최적화 안내</h2></div><button type="button" class="trait-preset-modal-close" data-battle-mode-guide-close aria-label="안내 닫기">×</button></header>
-  <section class="battle-mode-guide-panel" aria-label="전투 모드 사용 방법">
-    <strong>사용 방법</strong>
-    <ul class="battle-mode-guide-steps">
-      <li><b>일반 모드</b>일반 DPS 기준으로 특성을 최적화합니다.</li>
-      <li><b>유물 모드</b>유물 DPS 기준으로 최적화하며, 공격속도 9종·방어력 관통 1종은 제외합니다.</li>
-      <li><b>모드 변경</b>유닛 슬롯과 투자값은 유지됩니다. 최적화는 직접 다시 실행해야 합니다.</li>
-      <li><b>투자 제한</b>공격속도 제한은 일반 모드에만 적용됩니다. 크리 확률·멀티 타겟·무한 특성·종료 구간은 두 모드 모두 설정을 따릅니다.</li>
-    </ul>
-    <p class="battle-mode-guide-muted">※ 공격속도·크리 확률 제한값 0은 제한 없음입니다. 보유 재화·최대 투자량·난이도 조건은 두 모드에 공통 적용됩니다.</p>
-    <p class="battle-mode-guide-muted">※ Abyss road, Deep Abyss, 행성탐사에서는 유물 모드를 사용할 수 없습니다.</p>
-    <details class="battle-mode-guide-extra">
-      <summary>유물 모드 제외 특성 10종</summary>
+  <div class="battle-guide-tabs" role="tablist" aria-label="전투 모드 안내 내용">
+    <button type="button" role="tab" id="battleGuideCompareTab" aria-controls="battleGuideComparePanel" aria-selected="true" tabindex="0" data-battle-guide-tab="compare">모드 비교</button>
+    <button type="button" role="tab" id="battleGuideTraitsTab" aria-controls="battleGuideTraitsPanel" aria-selected="false" tabindex="-1" data-battle-guide-tab="traits">유물 제한 특성 10종</button>
+  </div>
+  <section class="battle-mode-guide-panel" id="battleGuideComparePanel" role="tabpanel" aria-labelledby="battleGuideCompareTab" tabindex="0" data-battle-guide-panel="compare">
+    <div class="battle-guide-reminder">
+      <strong>모드를 바꾸면 최적화를 다시 실행하세요</strong>
+      <p>유닛 슬롯과 투자값은 유지됩니다. 최적화는 자동으로 다시 실행되지 않습니다.</p>
+    </div>
+    <table class="battle-guide-comparison">
+      <caption>모드별 최적화 기준과 투자 제한</caption>
+      <colgroup><col class="battle-guide-label-col"><col><col></colgroup>
+      <thead><tr><th scope="col">항목</th><th scope="col">일반 모드</th><th scope="col">유물 모드</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">최적화 기준</th><td>일반 DPS</td><td>유물 DPS</td></tr>
+        <tr class="battle-guide-difference"><th scope="row">공격속도 제한</th><td>설정 적용</td><td><strong>적용 안 함</strong></td></tr>
+        <tr><th scope="row">크리 확률 제한</th><td>설정 적용</td><td>설정 적용</td></tr>
+        <tr><th scope="row">멀티 타겟 / 무한 특성</th><td>설정 적용</td><td>설정 적용</td></tr>
+        <tr><th scope="row">최적화 종료 구간</th><td>설정 적용</td><td>설정 적용</td></tr>
+      </tbody>
+    </table>
+    <div class="battle-guide-common">
+      <p>공격속도·크리 확률 제한값 <strong>0은 제한 없음</strong>입니다.</p>
+      <p>보유 재화·최대 투자량·난이도 조건은 두 모드에 공통 적용됩니다.</p>
+    </div>
+    <div class="battle-guide-unavailable"><strong>유물 모드 사용 불가</strong><p>Abyss road, Deep Abyss, 행성탐사</p></div>
+  </section>
+  <section class="battle-mode-guide-panel battle-mode-guide-extra" id="battleGuideTraitsPanel" role="tabpanel" aria-labelledby="battleGuideTraitsTab" tabindex="0" data-battle-guide-panel="traits" hidden>
+      <h3 class="battle-guide-traits-title">유물 모드에서 자동 투자하지 않는 특성</h3>
+      <p class="battle-guide-excluded-intro">유물 모드 최적화는 공격속도 9종과 방어력 관통 1종에 자동 투자하지 않습니다.</p>
       <ul class="battle-mode-guide-trait-list">
         <li>공격속도 증가1 <small>루키</small></li>
         <li>공격속도 증가2 <small>아마추어</small></li>
@@ -1387,7 +1424,6 @@ loadScriptSequence(['data.js','calc.js','app.js','unit.js','preset.js','responsi
         <li>방어력 관통 R <small>RP특성</small></li>
       </ul>
       <p class="battle-mode-guide-muted">기존 투자는 유지되며, 직접 투자할 수도 있습니다.</p>
-    </details>
   </section>
 </dialog>
 <dialog id="dpsUnitSlotRemoveDialog" class="unit-slot-remove-dialog" aria-labelledby="dpsUnitSlotRemoveTitle" aria-describedby="dpsUnitSlotRemoveDescription">
