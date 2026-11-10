@@ -1744,92 +1744,13 @@ function bindFontScaleViewportGuard(){
     }
   });
 }
-const APP_TITLE_ROTATION=Object.freeze({
-  main:{value:'개복디 빌더'},
-  creator:{label:'제작자', value:'회장 | 3-S2-1-2461127'},
-  mainMs:5000,
-  creatorMs:3000,
-  transitionMs:180,
-  versionMs:1200
-});
 /* 11-B · 앱 제목·버전 표시 */
-function getAppTitleViewMeta(mode){
-  if(mode==='version') return {label:'버전정보', value:(window.APP_VERSION || window.DPS_BUILD_VERSION || 'V1.0')};
-  return APP_TITLE_ROTATION[mode] || APP_TITLE_ROTATION.main;
-}
-function buildAppTitleHtml(mode, meta){
-  if(mode==='main') return `<span class="hdr-title-mainline">${escapeHtml(meta.value)}</span>`;
-  return `<span class="hdr-title-stack"><span class="hdr-title-label">${escapeHtml(meta.label)}</span><span class="hdr-title-main">${escapeHtml(meta.value)}</span></span>`;
-}
-let appTitleRotationTimer=0;
-let appTitleTransitionTimer=0;
-let appTitleVersionTimer=0;
-function clearAppTitleRotationTimers(){
-  if(appTitleRotationTimer){
-    clearTimeout(appTitleRotationTimer);
-    appTitleRotationTimer=0;
-  }
-  if(appTitleTransitionTimer){
-    clearTimeout(appTitleTransitionTimer);
-    appTitleTransitionTimer=0;
-  }
-}
-function renderAppTitleView(mode){
-  const title=$('appTitleView');
-  if(!title) return;
-  const meta=getAppTitleViewMeta(mode);
-  const text=meta.label ? `${meta.label} ${meta.value}` : meta.value;
-  title.dataset.titleView=mode;
-  title.classList.toggle('is-creator-view', mode==='creator');
-  title.classList.toggle('is-version-view', mode==='version');
-  title.innerHTML=buildAppTitleHtml(mode, meta);
-  title.setAttribute('aria-label', `${text} · 앱 버전 보기`);
-}
-function scheduleAppTitleRotation(mode){
-  const delay=mode==='creator' ? APP_TITLE_ROTATION.creatorMs : APP_TITLE_ROTATION.mainMs;
-  appTitleRotationTimer=setTimeout(()=>{
-    const title=$('appTitleView');
-    if(!title) return;
-    title.classList.add('is-transitioning');
-    appTitleTransitionTimer=setTimeout(()=>{
-      const nextMode=mode==='creator' ? 'main' : 'creator';
-      renderAppTitleView(nextMode);
-      title.classList.remove('is-transitioning');
-      scheduleAppTitleRotation(nextMode);
-    },APP_TITLE_ROTATION.transitionMs);
-  },delay);
-}
-function restartAppTitleRotation(){
-  const title=$('appTitleView');
-  if(!title) return;
-  clearAppTitleRotationTimers();
-  title.classList.remove('is-transitioning');
-  renderAppTitleView('main');
-  scheduleAppTitleRotation('main');
-}
-function showAppTitleVersion(){
-  const title=$('appTitleView');
-  if(!title) return;
-  clearAppTitleRotationTimers();
-  title.classList.remove('is-transitioning');
-  renderAppTitleView('version');
-  if(appTitleVersionTimer) clearTimeout(appTitleVersionTimer);
-  appTitleVersionTimer=setTimeout(()=>{
-    appTitleVersionTimer=0;
-    restartAppTitleRotation();
-  },APP_TITLE_ROTATION.versionMs);
-}
-function bindAppTitleVersion(){
-  const title=$('appTitleView');
-  if(!title) return;
-  restartAppTitleRotation();
-  title.addEventListener('click', showAppTitleVersion);
-  title.addEventListener('keydown', e=>{
-    if(e.key==='Enter' || e.key===' '){
-      e.preventDefault();
-      showAppTitleVersion();
-    }
-  });
+function renderAppTitleVersion(){
+  const versionText=$('appTitleVersion');
+  if(!versionText) return;
+  const buildVersion=String(window.APP_VERSION || window.DPS_BUILD_VERSION || '');
+  const shortVersion=buildVersion.match(/V\d+(?:\.\d+)*$/i)?.[0] || '';
+  versionText.textContent=shortVersion ? ` · ${shortVersion}` : '';
 }
 /* 더제로 승단 */
 
@@ -2371,7 +2292,7 @@ function bindAppEvents(){
     bindFontScaleViewportGuard, bindFontScalePopover, bindActionEvents, bindTraitHoldEvents, bindTraitInputEvents,
     bindIntegratedTabEvents, ()=>window.DpsPreset.bindEvents(), bindJewelImageEvents,
     bindZeroScoreCalculator, bindTraitLimitDisplayEvents, bindTraitLimitChoiceEvents, bindDpsBaseUnitControlEvents, bindDpsSanctuaryEvents, bindReactiveInputs,
-    bindButtonPressFeedback, bindIndependentWindowButton, bindDamageBoardTabEvents, bindDpsCompareEvents, bindDamageBoardSwitchEvents, bindAppTitleVersion, bindPlanetExplorationCalendar
+    bindButtonPressFeedback, bindIndependentWindowButton, bindDamageBoardTabEvents, bindDpsCompareEvents, bindDamageBoardSwitchEvents, renderAppTitleVersion, bindPlanetExplorationCalendar
   ].forEach(fn=>fn());
 }
 /* ── 13 · 선택 목록 UI 및 동기화 ── */

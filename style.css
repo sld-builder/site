@@ -415,19 +415,9 @@ body,input,button,select,textarea{font-family:var(--font-main);}
 .brand-insignia svg{display:block;width:100%;height:100%;filter:drop-shadow(0 0 3px rgba(45,153,250,.32));}
 .header-kicker{display:block;max-width:100%;font-size:calc(9.75px * var(--app-font-scale));line-height:1;letter-spacing:.18em;color:#85c8fa;white-space:nowrap;}
 .hdr-title-wrap{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;min-width:0;max-width:100%;padding-left:0;}
-.hdr-title-wrap h1{position:relative;display:flex;align-items:center;justify-content:flex-start;margin:0;min-width:0;max-width:100%;height:auto;min-height:24px;padding:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1;cursor:pointer;user-select:none;text-align:left;color:#f4f8ff;letter-spacing:-.03em;border:0;border-radius:0;background:transparent;box-shadow:none;text-shadow:0 0 15px rgba(92,145,209,.16);transition:opacity .18s ease,transform .18s ease,color .18s ease,text-shadow .18s ease;}
-.hdr-title-wrap h1::before{content:none;}
-.hdr-title-wrap h1:hover{text-shadow:0 0 20px rgba(110,164,242,.38);}
-.hdr-title-wrap h1.is-transitioning{opacity:0;transform:translateY(3px);}
-.hdr-title-wrap h1.is-creator-view,.hdr-title-wrap h1.is-version-view{color:#f4f8ff;text-shadow:0 0 16px rgba(92,145,209,.18);}
+.hdr-title-wrap h1{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;margin:0;min-width:0;max-width:100%;height:auto;min-height:24px;padding:0;overflow:hidden;text-align:left;color:#f4f8ff;text-shadow:0 0 15px rgba(92,145,209,.16);}
 .hdr-title-mainline{display:block;max-width:100%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:calc(18px * var(--app-font-scale));letter-spacing:-.035em;line-height:1.18;text-align:left;}
-.hdr-title-stack{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:2px;width:100%;min-width:0;height:100%;overflow:hidden;text-align:left;}
-.hdr-title-label{display:flex;align-items:flex-end;justify-content:flex-start;flex:0 0 30%;max-width:100%;color:rgba(207,224,255,.88);font-size:calc(9.5px * var(--app-font-scale));letter-spacing:.14em;line-height:1;text-align:left;text-shadow:0 0 10px rgba(79,109,166,.36);}
-.hdr-title-main{display:flex;align-items:flex-start;justify-content:flex-start;flex:1 1 70%;max-width:100%;min-width:0;color:#f8fbff;font-size:calc(13px * var(--app-font-scale));letter-spacing:-.035em;line-height:1.05;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left;}
-.hdr-title-wrap h1.is-version-view .hdr-title-main{font-family:Consolas,monospace;letter-spacing:.02em;}
-@media (prefers-reduced-motion:reduce){
-  .hdr-title-wrap h1{transition:none;}
-}
+.hdr-title-subline{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:calc(10px * var(--app-font-scale));line-height:1.1;letter-spacing:.01em;color:rgba(207,224,255,.88);}
 .xp-sp-card .spec-unit-enhance{margin-top:10px;padding:10px;border:1px solid var(--ui-line);border-radius:10px;background:var(--color-white);display:block;}
 .xp-sp-card .spec-unit-enhance .unit-enhance-main-row{margin-top:0;}
 .ir label,.mini-ir label,.rune-stat-row label,.unit-enhance-main-row label{box-shadow:none;}
@@ -756,8 +746,7 @@ body.is-pc-portrait,body.is-tablet,body.is-mobile{overflow:auto;}
 body.is-pc-portrait .wrap,body.is-tablet .wrap,body.is-mobile .wrap{display:flex;flex-direction:column;width:100%;max-width:none;min-width:0;height:auto;min-height:100vh;overflow:visible;margin:0;gap:0;}
 body.is-pc-portrait .hdr,body.is-tablet .hdr,body.is-mobile .hdr{position:fixed;top:0;z-index:60;height:auto;min-height:42px;width:100%;}
 body.is-pc-portrait .hdr-title-mainline,body.is-tablet .hdr-title-mainline{font-size:calc(15.5px * var(--app-font-scale));letter-spacing:-.04em;}
-body.is-pc-portrait .hdr-title-main,body.is-tablet .hdr-title-main{font-size:calc(14px * var(--app-font-scale));letter-spacing:-.035em;}
-body.is-pc-portrait .hdr-title-label,body.is-tablet .hdr-title-label{font-size:calc(9.75px * var(--app-font-scale));letter-spacing:.13em;}
+body.is-pc-portrait .hdr-title-subline,body.is-tablet .hdr-title-subline{font-size:calc(9.75px * var(--app-font-scale));}
 body.is-pc-portrait .hdr-title-wrap h1,body.is-tablet .hdr-title-wrap h1{height:auto;min-height:22px;}
 body.is-tablet .brand-insignia,body.is-pc-portrait .brand-insignia{flex-basis:28px;width:28px;height:28px;}
 body.is-pc-portrait .col-work,body.is-tablet .col-work,body.is-mobile .col-work{display:flex;flex-direction:column;width:100%;min-width:0;height:auto;overflow:visible;padding:10px;gap:10px;background:var(--ui-layout-bg);}
@@ -796,8 +785,7 @@ body.is-mobile .header-kicker{font-size:calc(7.5px * var(--app-font-scale));lett
 body.is-mobile .hdr-title-wrap{min-width:0;flex:1 1 auto;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;max-width:none;padding-left:0;}
 body.is-mobile .hdr h1{width:100%;max-width:100%;height:auto;min-height:18px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 body.is-mobile .hdr-title-mainline{font-size:calc(13.5px * var(--app-font-scale));letter-spacing:-.045em;}
-body.is-mobile .hdr-title-label{font-size:calc(8.75px * var(--app-font-scale));letter-spacing:.12em;}
-body.is-mobile .hdr-title-main{font-size:calc(12.5px * var(--app-font-scale));letter-spacing:-.04em;}
+body.is-mobile .hdr-title-subline{font-size:calc(8.75px * var(--app-font-scale));}
 body.is-mobile .sg.rune-spec.clean-rune-card{overflow:visible;padding:0 0 10px;}
 body.is-mobile .sg.rune-spec.clean-rune-card > .sg-title{margin:0 0 10px;padding:0 var(--section-head-pad-x);width:100%;height:var(--section-head-h);min-height:var(--section-head-h);display:flex;align-items:center;white-space:nowrap;writing-mode:horizontal-tb;}
 body.is-mobile .clean-rune-card .rune-basic-card,body.is-mobile .clean-rune-card .rune-option-card,body.is-mobile .clean-rune-card .additional-editor,body.is-mobile .clean-rune-card .enchant-combined{display:block;width:100%;min-width:0;max-width:none;}
