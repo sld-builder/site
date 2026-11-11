@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <script>
-window.APP_VERSION = "B-VAERON-V34";
+window.APP_VERSION = "B-VAERON-V35";
 window.DPS_BUILD_VERSION = window.APP_VERSION;
 window.DPS_STANDALONE_VIEW = (function(){
   var requested=new URLSearchParams(window.location.search).get('dpsWindow');
@@ -89,10 +89,14 @@ window.DPS_STANDALONE_VIEW = (function(){
 html.dps-booting body{margin:0;background:#000000;color:#e6edf7;overflow:hidden}
 html.dps-booting .wrap{visibility:hidden}
 #dpsBootScreen{--btn-action-bg:#141518;--btn-action-border-hover:#8795a4;--btn-action-text:#f8fbff;position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;background:#0b0c0f;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-#dpsBootScreen .boot-card{width:min(320px,calc(100vw - 48px));padding:22px 20px;border:1px solid #272c32;border-radius:18px;background:#0c0d10;box-shadow:0 16px 44px rgba(0,0,0,.34);text-align:center}
+#dpsBootScreen .boot-card{box-sizing:border-box;width:min(320px,calc(100vw - 48px));max-height:calc(100dvh - 24px);overflow-y:auto;padding:22px 20px;border:1px solid #272c32;border-radius:18px;background:#0c0d10;box-shadow:0 16px 44px rgba(0,0,0,.34);text-align:center}
 #dpsBootScreen .boot-title{font-size:18px;margin-bottom:8px;color:#cfe0ff}
 #dpsBootScreen .boot-desc{font-size:13px;line-height:1.5;color:#aebdd1}
 #dpsBootScreen .boot-error-code{display:inline-flex;align-items:center;justify-content:center;margin:12px 0 10px;padding:7px 12px;border:1px solid #7f1d2d;border-radius:999px;background:#0c0d10;color:#ff9aaa;letter-spacing:.4px;font-variant-numeric:tabular-nums}
+#dpsBootScreen .boot-error-info{margin-top:10px;padding:12px;border:1px solid #394558;border-radius:10px;background:#14171c;text-align:left}
+#dpsBootScreen .boot-error-label{margin-bottom:5px;font-size:12px;font-weight:700;color:#cfe0ff}
+#dpsBootScreen .boot-error-reason{font-size:13px;line-height:1.6;color:#e6edf7;white-space:pre-wrap;overflow-wrap:anywhere}
+#dpsBootScreen .boot-error-file{margin-top:8px;font-size:12px;color:#aebdd1;overflow-wrap:anywhere}
 #dpsBootScreen .boot-actions{display:flex;justify-content:center;gap:8px;margin-top:12px}
 #dpsBootScreen .boot-action-btn{height:34px;padding:0 12px;border:1px solid #394558;border-radius:10px;background:#0d0e11;color:#a9c8ff;cursor:pointer}
 #dpsBootScreen .boot-action-btn.primary{border-color:var(--btn-action-border-hover);background:var(--btn-action-bg);color:var(--btn-action-text)}
@@ -122,28 +126,45 @@ html:not(.dps-booting) #dpsBootScreen{display:none}
     }
   }
   window.dpsShowBootError=function(code, err){
+    if(window.__dpsBootError && window.DPS_LAST_BOOT_ERROR && window.DPS_LAST_BOOT_ERROR.code!==code) return;
     window.__dpsBootError=true;
-        try{window.DPS_LAST_BOOT_ERROR={code:code,error:err||'unknown',time:Date.now()};}catch(e){ window.__dpsBootErrorRecordFailed=e; }
+    try{window.DPS_LAST_BOOT_ERROR={code:code,error:err||'unknown',time:Date.now()};}catch(e){window.__dpsBootErrorRecordFailed=e;}
     if(document.readyState==='loading' && !document.getElementById('dpsBootScreen')){
       document.addEventListener('DOMContentLoaded',function(){window.dpsShowBootError(code,err);},{once:true});
       return;
     }
     try{
+      var types={
+        B1001:{title:'빌더 실행 오류',guide:'초기화 중 오류가 발생했습니다. 아래 상세 원인을 확인하세요.'},
+        B1002:{title:'스크립트 파일 로드 실패',guide:'표시된 JavaScript 파일의 경로와 배포 여부를 확인하세요.'},
+        B1003:{title:'앱 시작 함수 확인 실패',guide:'app.js 로드 및 dpsStartApp 함수 정의를 확인하세요.'},
+        B1004:{title:'필수 리소스 로드 실패',guide:'표시된 CSS·이미지 파일이 정상적으로 제공되는지 확인하세요.'}
+      };
+      var info=types[code]||{title:'빌더 초기화 오류',guide:'오류 정보를 확인하세요.'};
+      var reason=err && err.message ? String(err.message) : String(err || '상세 원인 정보가 없습니다.');
+      var matched=(reason + "\n" + (err && err.stack || "")).match(/([\w.-]+\.(?:js|css|png|jpe?g|webp|svg))(?:\?[^\s]*)?/i);
+      var file=err && (err.file || err.fileName) || (matched && matched[1]) || (code==='B1003'?'app.js':'');
       document.documentElement.classList.add('dps-booting','dps-boot-error');
       var boot=document.getElementById('dpsBootScreen');
       if(boot){
         boot.removeAttribute('aria-hidden');
-        boot.innerHTML='<div class="boot-card"><div class="boot-title">앱 초기화에 실패했습니다</div><div class="boot-desc">새로고침 후에도 반복되면 제작자에게 아래 오류코드를 전달해주세요.</div><div class="boot-error-code" aria-label="오류코드">'+code+'</div><div class="boot-actions"><button class="boot-action-btn" id="dpsBootCopyBtn" type="button">오류코드 복사</button><button class="boot-action-btn primary" id="dpsBootReloadBtn" type="button">새로고침</button></div></div>';
+        boot.innerHTML='<div class="boot-card"><div class="boot-title" id="dpsBootTitle"></div><div class="boot-desc" id="dpsBootDesc"></div><div class="boot-error-code" id="dpsBootCode" aria-label="오류코드"></div><div class="boot-error-info"><div class="boot-error-label">상세 원인</div><div class="boot-error-reason" id="dpsBootReason"></div><div class="boot-error-file" id="dpsBootFile" hidden></div></div><div class="boot-actions"><button class="boot-action-btn" id="dpsBootCopyBtn" type="button">오류 정보 복사</button><button class="boot-action-btn primary" id="dpsBootReloadBtn" type="button">새로고침</button></div></div>';
+        document.getElementById('dpsBootTitle').textContent=info.title;
+        document.getElementById('dpsBootDesc').textContent=info.guide;
+        document.getElementById('dpsBootCode').textContent=code;
+        document.getElementById('dpsBootReason').textContent=reason;
+        var fileElement=document.getElementById('dpsBootFile');
+        if(file){fileElement.textContent='관련 파일: '+file;fileElement.hidden=false;}
         var copyBtn=document.getElementById('dpsBootCopyBtn');
         var reloadBtn=document.getElementById('dpsBootReloadBtn');
-        if(copyBtn) copyBtn.addEventListener('click',function(){ copyBootErrorCode(code,copyBtn); });
-        if(reloadBtn) reloadBtn.addEventListener('click',function(){ window.location.reload(); });
+        if(copyBtn) copyBtn.addEventListener('click',function(){copyBootErrorCode([code,info.title,reason,file?'관련 파일: '+file:''].filter(Boolean).join('\n'),copyBtn);});
+        if(reloadBtn) reloadBtn.addEventListener('click',function(){window.location.reload();});
       }
-    }catch(e){ window.__dpsBootRenderError=e; }
+    }catch(e){window.__dpsBootRenderError=e;}
   };
   window.addEventListener('error',function(event){
     if(event.error && !window.__dpsAppReady && !window.__dpsBootError){
-      window.dpsShowBootError('D1001',event.error);
+      window.dpsShowBootError('B1001',event.error);
     }
   });
   function waitForEssentialResources(){
@@ -200,7 +221,7 @@ html:not(.dps-booting) #dpsBootScreen{display:none}
     waitForEssentialResources().then(function(){
       if(window.__dpsBootError) return;
       finishRelease();
-    }).catch(function(error){window.dpsShowBootError('D1004',error);});
+    }).catch(function(error){window.dpsShowBootError('B1004',error);});
   }
   function finishRelease(){
     if(window.__dpsBootError) return;
@@ -224,14 +245,14 @@ html:not(.dps-booting) #dpsBootScreen{display:none}
 <meta content="개복디 빌더 - 통합 빌드 계산 HUB" property="og:title"/>
 <meta content="특성 투자·재화 사용량 계산부터 스펙·DPS 분석까지 한 번에, 통합 빌드 계산 HUB" property="og:description"/>
 <!-- OG/Twitter 이미지 캐시: 앱 버전 변경 시 아래 세 URL을 같은 버전으로 맞춥니다. -->
-<meta content="https://sld-builder.github.io/site/logo.png?v=B-VAERON-V34" property="og:image"/>
-<meta content="https://sld-builder.github.io/site/logo.png?v=B-VAERON-V34" property="og:image:secure_url"/>
+<meta content="https://sld-builder.github.io/site/logo.png?v=B-VAERON-V35" property="og:image"/>
+<meta content="https://sld-builder.github.io/site/logo.png?v=B-VAERON-V35" property="og:image:secure_url"/>
 <meta content="image/png" property="og:image:type"/>
 <meta content="개복디 빌더 로고" property="og:image:alt"/>
 <meta content="summary_large_image" name="twitter:card"/>
 <meta content="개복디 빌더 - 통합 빌드 계산 HUB" name="twitter:title"/>
 <meta content="특성 투자·재화 사용량 계산부터 스펙·DPS 분석까지 한 번에, 통합 빌드 계산 HUB" name="twitter:description"/>
-<meta content="https://sld-builder.github.io/site/logo.png?v=B-VAERON-V34" name="twitter:image"/>
+<meta content="https://sld-builder.github.io/site/logo.png?v=B-VAERON-V35" name="twitter:image"/>
 <meta content="개복디 빌더 로고" name="twitter:image:alt"/>
 <link href="https://cdn.jsdelivr.net" rel="preconnect"/>
 <link crossorigin="" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet"/>
@@ -252,7 +273,7 @@ html:not(.dps-booting) #dpsBootScreen{display:none}
   mainStyle.href=assetUrl('./style.css','style.css');
   mainStyle.addEventListener('error',function(){
     mainStyle.dataset.loadFailed='1';
-    window.dpsShowBootError('D1004',new Error('style.css load failed'));
+    window.dpsShowBootError('B1004',new Error('style.css load failed'));
   });
   document.head.appendChild(mainStyle);
   // 기존 스타일을 기능별로 분리하고 정적 리소스의 버전/캐시 키는 그대로 사용한다.
@@ -261,7 +282,7 @@ html:not(.dps-booting) #dpsBootScreen{display:none}
     link.rel='stylesheet';
     link.href=assetUrl('./'+name,name);
     link.addEventListener('error',function(){
-      if(typeof window.dpsShowBootError==='function') window.dpsShowBootError('D1004',new Error(name+' load failed'));
+      if(typeof window.dpsShowBootError==='function') window.dpsShowBootError('B1004',new Error(name+' load failed'));
     });
     document.head.appendChild(link);
   });
@@ -1328,7 +1349,7 @@ function loadScriptSequence(files, onComplete){
     script.async=false;
     script.addEventListener('load',next,{once:true});
     script.addEventListener('error',function(){
-      if(typeof window.dpsShowBootError==='function') window.dpsShowBootError('D1002', new Error(fileName + ' load failed'));
+      if(typeof window.dpsShowBootError==='function') window.dpsShowBootError('B1002', new Error(fileName + ' load failed'));
     },{once:true});
     document.body.appendChild(script);
   }
@@ -1337,7 +1358,7 @@ function loadScriptSequence(files, onComplete){
 loadScriptSequence(['data.js','calc.js','app.js','unit.js','preset.js','responsive.js'],function(){
   function startApp(){
     if(typeof window.dpsStartApp==='function') window.dpsStartApp();
-    else if(typeof window.dpsShowBootError==='function') window.dpsShowBootError('D1003',new Error('app start function missing'));
+    else if(typeof window.dpsShowBootError==='function') window.dpsShowBootError('B1003',new Error('app start function missing'));
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',startApp,{once:true});
   else startApp();

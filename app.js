@@ -1749,7 +1749,7 @@ function renderAppTitleVersion(){
   const versionText=$('appTitleVersion');
   if(!versionText) return;
   const buildVersion=String(window.APP_VERSION || window.DPS_BUILD_VERSION || '');
-  const shortVersion=buildVersion.match(/V\d+(?:\.\d+)*$/i)?.[0] || '';
+  const shortVersion=buildVersion.match(/B-VAERON-(.+)$/i)?.[1] || '';
   versionText.textContent=shortVersion ? ` · ${shortVersion}` : '';
 }
 /* 더제로 승단 */
@@ -2593,6 +2593,6 @@ window.dpsStartApp=function(){
     initApp();
     markAppReady();
   }catch(e){
-    markAppError('D1001', e);
+    markAppError('B1001', e);
   }
 };
