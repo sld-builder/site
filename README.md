@@ -12,7 +12,7 @@
 
 ## 🔗 바로가기
 
-**[▶ 개복디 빌더 실행하기](https://nxsbuild.github.io/build/)**
+**[▶ 개복디 빌더 실행하기](https://sld-builder.github.io/site/)**
 
 별도의 프로그램 설치 없이 웹 브라우저에서 이용할 수 있으며, PC·태블릿·모바일 환경을 지원합니다.
 
