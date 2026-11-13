@@ -60,48 +60,7 @@ function escapeHtml(value){
 
 const INV={};
 TRAITS.forEach(t=>{INV[t[0]]=0;});
-/* 1월 룬: 프리셋에는 룬 선택만 저장하며 무료 투자 추첨은 메모리에만 보관한다. */
-const JAN_RUNE_INV=Object.create(null);
-let janRuneDrawSignature='';
-function janRuneSetting(){
-  const scope=vs('janRuneScope')==='J2'?'J2':'J1';
-  const normal=Math.max(0,Math.min(6,Math.round(v('janRuneNormal')||0)));
-  const plus=Math.max(0,Math.min(6,Math.round(v('janRunePlus')||0)));
-  const diff=vs('diff');
-  const limit=diff==='도전의 탑'?85:(typeof isPlanetExplorationDifficulty==='function' && isPlanetExplorationDifficulty(diff)?95:295);
-  const current=typeof effectiveTargetRound==='function'?effectiveTargetRound():0;
-  const ticks=Math.floor(Math.min(limit,Math.max(0,current))/5);
-  return {scope,normal,plus,ticks,diff};
-}
-function redrawJanRuneInvestment(force=false){
-  const setting=janRuneSetting();
-  const targets=setting.scope==='J2'?JAN_RUNE_J2_ROWS:JAN_RUNE_J1_ROWS;
-  // 수동 투자량이 변하면 유효한 랜덤 후보도 달라지므로 그때만 다시 추첨한다.
-  const signature=[setting.scope,setting.normal,setting.plus,setting.ticks,setting.diff,
-    ...targets.map(row=>INV[row]||0)].join(':');
-  if(!force && signature===janRuneDrawSignature) return false;
-  janRuneDrawSignature=signature;
-  JAN_RUNE_J2_ROWS.forEach(row=>{JAN_RUNE_INV[row]=0;});
-  if(!setting.normal || !setting.ticks) return true;
-  for(let tick=0;tick<setting.ticks;tick++){
-    for(let rune=1;rune<=setting.normal;rune++){
-      // 이미 최대 투자된 특성은 추첨 전에 제외한다. 회차마다 무료 투자도 포함해 확인한다.
-      const available=targets.filter(row=>(INV[row]||0)+(JAN_RUNE_INV[row]||0)<(TMAX[row]||999));
-      if(!available.length) return true;
-      const row=available[Math.floor(Math.random()*available.length)];
-      JAN_RUNE_INV[row]++;
-      // 강화는 같은 특성에 한 번 더 투자하며, 남은 한도를 넘기지 않는다.
-      if(rune<=setting.plus && Math.random()<JAN_RUNE_EXTRA_INVEST_CHANCE &&
-        (INV[row]||0)+(JAN_RUNE_INV[row]||0)<(TMAX[row]||999)) JAN_RUNE_INV[row]++;
-    }
-  }
-  return true;
-}
-function janRuneInvestmentForRow(row){
-  if(!JAN_RUNE_J2_ROWS.includes(row)) return 0;
-  return Math.min(JAN_RUNE_INV[row]||0,Math.max(0,(TMAX[row]||999)-(INV[row]||0)));
-}
-function appliedTraitInvestment(row){return (INV[row]||0)+janRuneInvestmentForRow(row);}
+function appliedTraitInvestment(row){return INV[row]||0;}
 const ENCHANT_INPUT_IDS=['enchAD','enchCRI','enchUA','enchTD','enchSR','enchHR'];
 const ENCHANT_INPUT_ID_SET=new Set(ENCHANT_INPUT_IDS);
 
@@ -262,15 +221,14 @@ function hydrateRuneChoiceFromHidden(){
 function setSelectButton(id,value){
   const el=$(id);
   if(!el) return;
-  if(['janRunePlus','aprRunePlus','sepRunePlus'].includes(id) && Number(value)>v(id.replace('Plus','Normal'))) return;
+  if(['aprRunePlus','sepRunePlus'].includes(id) && Number(value)>v(id.replace('Plus','Normal'))) return;
   el.value=value;
   syncSelectButtons();
-  if(['janRuneScope','janRuneNormal','janRunePlus'].includes(id)) redrawJanRuneInvestment(true);
   commitAppUpdate();
 }
 function syncSelectButtons(){
   const runePlusLimits={};
-  ['janRune','aprRune','sepRune'].forEach(prefix=>{
+  ['aprRune','sepRune'].forEach(prefix=>{
     const normal=$(prefix+'Normal');
     const plus=$(prefix+'Plus');
     if(!normal || !plus) return;
@@ -650,7 +608,6 @@ function invalidateAppCalculations(){
 function recalc(options={}){
   try{
     syncPreCalculationViews();
-    redrawJanRuneInvestment();
     syncTraitLimitControlPresentation();
     withArtifactDpsViewBuffApplied(()=>{
       const stats=computeStatsRaw();
@@ -1031,9 +988,6 @@ const FIELD_REGISTRY={
   dpsSanctuaryInfo:{kind:'유닛 보드',name:'성소 정보',save:true},
   erosionStack:{kind:'목표설정',name:'어비스 침식 스택',save:true},
   jewelErosionRes:{kind:'목표설정',name:'어비스 심연 내성',save:true},
-  janRuneScope:{kind:'룬효과 버프',name:'1월 적용 범위',save:true},
-  janRuneNormal:{kind:'룬효과 버프',name:'1월 일반',save:true},
-  janRunePlus:{kind:'룬효과 버프',name:'1월 강화(+)',save:true},
   aprRuneNormal:{kind:'룬효과 버프',name:'4월 일반',save:true},
   aprRunePlus:{kind:'룬효과 버프',name:'4월 강화(+)',save:true},
   sepRuneNormal:{kind:'룬효과 버프',name:'9월 일반',save:true},
@@ -1378,8 +1332,6 @@ function setTraitTierExpanded(tier,expanded,exclusive=true){
 function updateTraits(){
   const body=$('traitBody');
   if(!body) return;
-  const janRuneConfig=janRuneSetting();
-  const janRuneTargets=janRuneConfig.scope==='J2'?JAN_RUNE_J2_ROWS:JAN_RUNE_J1_ROWS;
   body.innerHTML=TIERS.map((tier,tierIndex)=>{
     const tierTraits=TRAITS.filter(t=>t[2]===tier && t[0]!==116);
     const eligibleTierTraits=tierTraits;
@@ -1392,8 +1344,6 @@ function updateTraits(){
     const rows=tierTraits.map((t,index)=>{
       const [row,name,,type,rate]=t;
       const n=INV[row]||0, mx=TMAX[row]||999;
-      const janFree=janRuneInvestmentForRow(row);
-      const showJanRune=janRuneConfig.normal>0 && janRuneTargets.includes(row);
       const isMax=n>=mx;
       const cost=nextCost(row);
       // 어비스 난이도의 특성별 계수는 기존 DPS 계산과 동일하게 표시한다.
@@ -1414,9 +1364,8 @@ function updateTraits(){
           </div>
           <button type="button" class="ui-step-btn" data-action="traitAdjust" data-row="${row}" data-delta="1" ${isMax?'disabled':''} aria-label="${escapeHtml(name)} 1 투자">+</button>
           <button type="button" class="ui-action-btn trait-master-btn" data-action="traitMax" data-row="${row}" ${isMax?'disabled':''}>마스터</button>
-          ${showJanRune || mx>=50 ? `<div class="trait-quick-actions${showJanRune?' has-jan-rune':''}${mx>=50?' has-quick-invest':''}">
-            ${showJanRune ? `<div class="trait-jan-rune" aria-label="${isMax?'1월룬 미적용 · 최대치 도달':`1월룬 무료 투자 ${janFree}회, 실적용 ${n+janFree}회`}">${isMax?'<span>1월룬 미적용 · 최대치 도달</span>':`<span>1월룬 +${janFree}</span><strong>실적용 ${n+janFree}</strong>`}</div>` : ''}
-            ${mx>=50 ? [10,50].map(step=>`<button type="button" data-action="traitQuickAdjust" data-row="${row}" data-step="${step}" ${mx-n<step?'disabled':''} aria-label="${escapeHtml(name)} ${step}회 추가 투자">+${step}</button>`).join('') : ''}
+          ${mx>=50 ? `<div class="trait-quick-actions">
+            ${[10,50].map(step=>`<button type="button" data-action="traitQuickAdjust" data-row="${row}" data-step="${step}" ${mx-n<step?'disabled':''} aria-label="${escapeHtml(name)} ${step}회 추가 투자">+${step}</button>`).join('')}
           </div>` : ''}
         </div>
       </article>`;

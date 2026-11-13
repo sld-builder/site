@@ -393,9 +393,6 @@ const DPS_TABLE_UI_RULES={
     decimals:2
   };
 
-const JAN_RUNE_J1_ROWS=Object.freeze([108,109,110,111,115]);
-const JAN_RUNE_J2_ROWS=Object.freeze([108,109,110,111,112,113,114,115]);
-const JAN_RUNE_EXTRA_INVEST_CHANCE=0.33;
 const XP_CUT_DIVISOR_GROUPS=[
   {
     label:'협동전 2인',

@@ -48,10 +48,16 @@ function padTraitPresetDatePart(value){return String(value).padStart(2,'0');}
 function formatTraitPresetExportedAt(date=new Date()){
   return `${padTraitPresetDatePart(date.getFullYear()%100)}${padTraitPresetDatePart(date.getMonth()+1)}${padTraitPresetDatePart(date.getDate())}_${padTraitPresetDatePart(date.getHours())}${padTraitPresetDatePart(date.getMinutes())}${padTraitPresetDatePart(date.getSeconds())}`;
 }
+// 폐지된 필드는 구버전 가져오기·업데이트·백업에서 같은 규칙으로 제거한다.
+const REMOVED_PRESET_VALUE_LABELS=Object.freeze({
+  janRuneScope:'1월 적용 범위',
+  janRuneNormal:'1월 일반',
+  janRunePlus:'1월 강화'
+});
 const INTERNAL_VALUE_IDS=new Set([
   'dt','ep','rAP','rTD','rUA','rHarmony'
 ]);
-const IGNORED_SAVED_VALUE_IDS=[...(DPS_CONFIG.state.skipElementIds || []),...INTERNAL_VALUE_IDS];
+const IGNORED_SAVED_VALUE_IDS=[...(DPS_CONFIG.state.skipElementIds || []),...INTERNAL_VALUE_IDS,...Object.keys(REMOVED_PRESET_VALUE_LABELS)];
 const NORMALIZED_MONEY_VALUE_IDS=new Set(['sp','xp','bxp','rp','soul']);
 const SHARD_VALUE_IDS=new Set(['coralShard','aiurShard','xerusShard']);
 function normalizeMoneyStorageValue(value, id=''){
@@ -81,7 +87,7 @@ function syncSpBankPresetState(values, inv){
   inv[SP_BANK_TRAIT_ROW]=bankLevel;
   values.spBankApply=applyState;
 }
-function isUserStateValueId(id){ return USER_STATE_VALUE_IDS.has(id) || id===PRESET_BATTLE_MODE_VALUE_ID; }
+function isUserStateValueId(id){ return !hasOwn(REMOVED_PRESET_VALUE_LABELS,id) && (USER_STATE_VALUE_IDS.has(id) || id===PRESET_BATTLE_MODE_VALUE_ID); }
 function userStateElementIds(){ return storageElementIds().filter(id=>USER_STATE_VALUE_IDS.has(id)); }
 const storageState={isLoading:false,suppressSave:false,factoryState:null,saveFailCount:0,hasSavedState:false,presetMutationInProgress:false};
 function isStorageLocked(){return storageState.isLoading || storageState.suppressSave;}
@@ -311,10 +317,6 @@ function sanitizeSavedValues(values){
   });
   normalizeShardStorageValues(out);
   normalizeMoneyStorageValues(out);
-  if(hasOwn(out,'janRuneScope')) out.janRuneScope=out.janRuneScope==='J2'?'J2':'J1';
-  ['janRuneNormal','janRunePlus'].forEach(id=>{
-    if(hasOwn(out,id)) out[id]=clampedIntegerString(out[id],0,6,0);
-  });
   return out;
 }
 
@@ -634,7 +636,6 @@ function applyStateObject(data, options={}){
       if(!Number.isFinite(r) || !(r in INV)) return;
       INV[r]=Math.max(0, Math.min(TMAX[r]||999, Math.round(+val||0)));
     });
-    redrawJanRuneInvestment(true);
     // 프리셋에는 보유 재화보다 큰 투자값도 그대로 보존한다. 잔여량은 음수로 표시한다.
     restoreTraitRecommendationSaveState(data.recommendations);
     if(hasOwn(sanitizedValues,'runeChoiceType') || hasOwn(sanitizedValues,'runeChoiceValue')) syncRuneChoice();
@@ -1599,6 +1600,7 @@ function traitPresetImportChangeIsShared(key){
   return key?.startsWith('value:') && !TRAIT_PRESET_SINGLE_UPDATE_VALUE_IDS.has(key.slice(6));
 }
 function traitPresetImportReadableName(id){
+  if(hasOwn(REMOVED_PRESET_VALUE_LABELS,id)) return REMOVED_PRESET_VALUE_LABELS[id];
   if(id==='donationBuffType' || id==='116' || id==='inv:116') return '나눔 설정';
   if(id==='zeroScore') return '더제로 전당 계산값';
   if(id==='inv') return '특성 투자';
@@ -2774,9 +2776,14 @@ function traitPresetMigrationChanges(raw){
     Object.keys(preset.state || {}).filter(key=>!TRAIT_PRESET_SCHEMA_STATE_KEYS.has(key)).forEach(key=>
       add(changes,traitPresetObsoleteChange(`obsolete:state:${key}`,`폐지된 프리셋 상태 항목 · ${key}`)));
     Object.keys(rawValues).filter(id=>!hasOwn(defaults.values,id)).forEach(id=>{
-      const label=id==='dpsSanctuaryInfo' ? '유닛 보드 · 과거 성소 정보' :
+      const removedLabel=REMOVED_PRESET_VALUE_LABELS[id];
+      const label=removedLabel ? `이달의 룬 효과 · ${removedLabel}` :
+        id==='dpsSanctuaryInfo' ? '유닛 보드 · 과거 성소 정보' :
         id==='dpsJewelSettings' ? '쥬얼 설정 · 과거 저장 항목' : `폐지된 저장 항목 · ${id}`;
-      add(changes,traitPresetObsoleteChange(`obsolete:value:${id}`,label));
+      const previous=removedLabel
+        ? (id==='janRuneScope' ? (rawValues[id]==='J2' ? '전체 투자 @J2' : '공격 오펜 @J1') : String(rawValues[id]))
+        : '과거 데이터 보존 중';
+      add(changes,traitPresetObsoleteChange(`obsolete:value:${id}`,label,previous));
     });
     Object.keys(preset.state?.inv || {}).filter(id=>!hasOwn(defaults.inv,id)).forEach(id=>
       add(changes,traitPresetObsoleteChange(`obsolete:inv:${id}`,`특성 투자 · 폐지된 항목 ${id}`)));
@@ -3169,10 +3176,8 @@ function createDpsClearReport(){
     const value=Number($(id)?.value || 0);
     return Number.isFinite(value) && value>0 ? `${label} ${value}` : null;
   };
-  const januaryScope=$('janRuneScope')?.value==='J2' ? '@J2' : '@J1';
   // 이달의 룬 효과는 월별 항목명 / 적용 수치를 2열로 표시한다.
   const monthRuneRows=[
-    {label:'1월',value:[activeNumber('janRuneNormal','일반'),activeNumber('janRunePlus','강화')].filter(Boolean).join(' · ')},
     {label:'4월',value:[activeNumber('aprRuneNormal','일반'),activeNumber('aprRunePlus','강화')].filter(Boolean).join(' · ')},
     {label:'9월',value:[activeNumber('sepRuneNormal','일반'),activeNumber('sepRunePlus','강화')].filter(Boolean).join(' · ')}
   ].filter(row=>row.value);
@@ -3198,7 +3203,7 @@ function createDpsClearReport(){
   if(!buffLines.length) buffLines.push('없음');
   // 현재 선택된 버프만 종류별 한 줄로 보존한다.
   const effects=[
-    {title:'이달의 룬 효과',lines:[`1월 적용 범위: ${januaryScope}`,...monthRuneLines]},
+    {title:'이달의 룬 효과',lines:monthRuneLines},
     {title:'강화 효과',lines:enhanceLines},
     {title:'선택 버프',lines:buffLines}
   ];
