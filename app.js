@@ -1769,10 +1769,10 @@ function renderAppTitleVersion(){
   const versionText=$('appTitleVersion');
   if(!versionText) return;
   const buildVersion=String(window.APP_VERSION || window.DPS_BUILD_VERSION || '');
-  const shortVersion=buildVersion.match(/B-VAERON-(.+)$/i)?.[1] || '';
+  const shortVersion=buildVersion.match(/SLD-BUILDER-(.+)$/i)?.[1] || '';
   versionText.textContent=shortVersion ? ` · ${shortVersion}` : '';
 }
-/* 더제로 승단 */
+/* 11-C · 더제로 승단 행 정의·선택지 생성 */
 
 const ZERO_PENANCE_ROWS=[
   'Practice','Very Easy','Easy','Normal','Hard','Very Hard','Hell','Inferno','Lunatic','Holic','Epic','Ultimate','Impossible','The Final'
@@ -1851,6 +1851,7 @@ function zeroRankEntry(score){
   const table=getZeroRankTable();
   return table.reduce((best,item)=>value>=item.score ? item : best, table[0] || ZERO_RANK_FALLBACK_TABLE[0]);
 }
+/* 11-D · 승단 이름·혜택 미리보기 */
 function zeroRankName(score){
   return zeroRankEntry(score)?.name || '입문';
 }
@@ -1874,10 +1875,7 @@ function renderZeroBenefitsPreview(){
   const current=Math.max(0,Math.min(table.length-1,zeroBenefitActualIndex));
   const index=Math.max(0,Math.min(table.length-1,zeroBenefitViewIndex ?? current));
   const entry=table[index];
-  const title=$('zeroCurrentBenefitsTitle');
   const items=$('zeroCurrentBenefitsItems');
-  const label=$('zeroBenefitsViewLabel');
-  const position=$('zeroBenefitsPosition');
   const prev=$('zeroBenefitsPrev');
   const next=$('zeroBenefitsNext');
   setText('zeroCurrentBenefitsTitle',`더제로 ${entry.name} 혜택`);
@@ -1914,6 +1912,7 @@ function stepZeroBenefitsPreview(direction){
   zeroBenefitViewIndex=Math.max(0,Math.min(table.length-1,current+direction));
   renderZeroBenefitsPreview();
 }
+/* 11-E · 승단 점수·접힌 행 요약 갱신 */
 function updateZeroScoreCalculator(){
   const calc=qs('.zero-score-calc');
   const state=collectZeroScoreState();
@@ -1981,6 +1980,7 @@ function updateZeroScoreCalculator(){
   zeroBenefitActualIndex=getZeroRankTable().indexOf(zeroRankEntry(currentTotal));
   renderZeroBenefitsPreview();
 }
+/* 11-F · 승단 입력 필드·상태 수집·복원 */
 const ZERO_SCORE_DOM_FIELDS=Object.freeze({
   current:{selector:'.zero-calc-current',fallback:'0'},
   target:{selector:'.zero-calc-target',fallback:'0'},
@@ -2085,6 +2085,7 @@ function setZeroScoreRowExpanded(header,expanded,exclusive=true){
   header.setAttribute('aria-label',`${label} ${expanded?'접기':'펼치기'}`);
   setAccordionContentExpanded(details,expanded);
 }
+/* 11-G · 승단 UI 이벤트 연결 */
 function bindZeroScoreCalculator(){
   if(document.documentElement.dataset.zeroScoreCalcBound==='1') return;
   document.documentElement.dataset.zeroScoreCalcBound='1';
