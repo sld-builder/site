@@ -1462,18 +1462,18 @@ body.is-mobile .hdr-title-wrap h1{font-size:calc(13px * var(--app-font-scale));}
 /* 유닛 카드: 등급과 유닛명, 상세 모달과 같은 3열 지표 가운데 정렬 */
 /* 유닛 슬롯 · 일련번호 배지 */
 /* 헤더 버튼 표시 및 레이아웃 */
-body .nexus-labelled-control{position:relative!important;display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;flex:0 0 auto!important;width:var(--nexus-control-base,34px)!important;min-width:var(--nexus-control-base,34px)!important;max-width:100%;gap:0!important;padding:0!important;overflow:hidden!important;white-space:nowrap;transition:width .18s ease,background .15s ease,border-color .15s ease!important;}
-body .nexus-labelled-control > .nexus-control-icon{display:flex!important;align-items:center!important;justify-content:center!important;flex:0 0 calc(var(--nexus-control-base,34px) - 2px)!important;width:calc(var(--nexus-control-base,34px) - 2px)!important;min-width:0;height:100%;margin:0!important;line-height:1;}
-body .nexus-labelled-control > .nexus-action-label{position:static!important;display:block!important;flex:0 0 auto;max-width:0;overflow:hidden;margin:0!important;padding:0!important;opacity:0;font:var(--nexus-action-label-font-size,11px)/1.3 system-ui,-apple-system,sans-serif!important;letter-spacing:0!important;white-space:nowrap;color:inherit;pointer-events:none;transition:opacity .12s ease,max-width .18s ease;}
-body .nexus-labelled-control > .nexus-action-label > span{display:inline!important;font:inherit!important;letter-spacing:inherit!important;}
-body .nexus-labelled-control.is-label-visible{width:var(--nexus-control-expanded,150px)!important;}
-body .nexus-labelled-control.is-label-visible > .nexus-action-label{max-width:var(--nexus-label-width,180px);opacity:1;}
-.hdr.app-header .hdr-meta{--nexus-action-label-font-size:12px;flex-wrap:wrap;max-width:100%;}
-@media(prefers-reduced-motion:reduce){
-  body .nexus-labelled-control,body .nexus-labelled-control > .nexus-action-label{transition:none!important;}
-}
+body .nexus-labelled-control{position:relative!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 auto!important;width:var(--nexus-control-base,34px)!important;min-width:var(--nexus-control-base,34px)!important;gap:0!important;padding:0!important;overflow:visible!important;white-space:nowrap;transition:background .15s ease,border-color .15s ease!important;}
 body .nexus-labelled-control[hidden]{display:none!important}
 body:is(.is-mobile,.is-tablet) .hdr-meta .right-workspace-window-toggle.nexus-labelled-control{display:none!important}
+body .hdr.app-header{padding-right:10px;box-sizing:border-box;}
+body .hdr-meta .font-scale-ctrl{margin-right:0;}
+body .trait-utility-section-head{grid-template-columns:auto minmax(0,1fr) auto;}
+body .trait-expansion-toggle{margin-left:auto;position:relative;width:30px;min-width:30px;height:28px;padding:0;display:grid;place-items:center;overflow:visible;}
+.trait-expansion-toggle[aria-pressed="true"]{color:var(--studio-head-accent,#7196c4);border-color:currentColor;}
+.trait-expansion-toggle[aria-pressed="false"] .trait-collapse-arrows,.trait-expansion-toggle[aria-pressed="true"] .trait-expand-arrows{display:none;}
+body [data-nexus-control-name]::after{content:attr(data-nexus-control-name);position:absolute;top:calc(100% + 8px);right:0;z-index:100;max-width:min(300px,90vw);padding:6px 9px;border:1px solid #394556;border-radius:5px;background:#10151d;color:#e7eef8;font:12px/1.5 system-ui,sans-serif;white-space:nowrap;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .12s ease;}
+body [data-nexus-control-name]:active::after,body [data-nexus-control-name]:focus-visible::after{opacity:1;visibility:visible;transition-delay:.4s;}
+@media(hover:hover){body [data-nexus-control-name]:hover::after{opacity:1;visibility:visible;transition-delay:.4s;}}
 /* 헤더 일괄 펼침/접기와 접힌 전당 입력 요약 */
 /* 목록 전체가 공유하는 제목과 고정 열 정렬 */
 .zero-calc-table{--zero-progress-columns:calc(30px * var(--app-font-scale)) calc(34px * var(--app-font-scale)) calc(34px * var(--app-font-scale)) calc(76px * var(--app-font-scale));--zero-progress-gap:8px;}

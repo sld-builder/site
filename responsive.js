@@ -43,7 +43,8 @@
     traitScrollObserver: null,
     traitScrollRaf: 0,
     touchScrolling: false,
-    viewportUpdatePending: false
+    viewportUpdatePending: false,
+    modeKey: null
   };
   /* 접힘 애니메이션·회전·제스처 후 변동된 특성 목록의 스크롤 경계를 보정한다.
    * 모바일/태블릿 특성 탭에만 적용하고 다른 페이지의 스크롤은 유지한다. */
@@ -88,15 +89,19 @@
     if (portrait) return 'is-pc-portrait';
     return 'is-pc-landscape';
   }
+  function setViewportProperty(key,value) {
+    const style=document.documentElement.style;
+    if(style.getPropertyValue(key)!==value) style.setProperty(key,value);
+  }
   function updateMobileOffsets() {
     const header = document.querySelector('.hdr');
     const tabs = document.querySelector('.mobile-section-tabs');
     const headerHeight = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
     const tabsHeight = tabs ? Math.ceil(tabs.getBoundingClientRect().height) : 0;
     const { w, h } = getViewportSize();
-    document.documentElement.style.setProperty('--mobile-vw', `${w}px`);
-    document.documentElement.style.setProperty('--mobile-header-h', `${headerHeight}px`);
-    document.documentElement.style.setProperty('--mobile-tabs-h', `${tabsHeight}px`);
+    setViewportProperty('--mobile-vw', `${w}px`);
+    setViewportProperty('--mobile-header-h', `${headerHeight}px`);
+    setViewportProperty('--mobile-tabs-h', `${tabsHeight}px`);
     const visualHeight = window.visualViewport?.height;
     const focused = document.activeElement;
     const isEditing = focused && (focused.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(focused.tagName));
@@ -104,7 +109,7 @@
     // Only shrink it for an actually focused editor with a visible on-screen keyboard.
     const keyboardVisible = isEditing && Number.isFinite(visualHeight) && visualHeight > 0 && h - visualHeight > 160;
     const usableHeight = keyboardVisible ? Math.min(h, Math.round(visualHeight)) : h;
-    document.documentElement.style.setProperty('--mobile-vh', `${usableHeight}px`);
+    setViewportProperty('--mobile-vh', `${usableHeight}px`);
     scheduleTraitScrollClamp();
   }
   function applyMode() {
@@ -119,9 +124,13 @@
     if (direction) classes.push(direction);
     if (deviceClass) classes.push(deviceClass);
     if (widthClass) classes.push(widthClass);
-    for(const el of [document.body,document.documentElement]){
-      el.classList.remove(...MODES);
-      el.classList.add(...classes);
+    const modeKey=classes.join(' ');
+    if(state.modeKey!==modeKey){
+      for(const el of [document.body,document.documentElement]){
+        el.classList.remove(...MODES);
+        el.classList.add(...classes);
+      }
+      state.modeKey=modeKey;
     }
     state.layoutWidth = w;
     state.layoutPortrait = h > w;
@@ -206,15 +215,15 @@
       state.tabs.querySelectorAll('.mobile-section-page-tab').forEach((btn, idx) => {
         const active = idx === nextIndex;
         btn.classList.toggle('active', active);
-        btn.setAttribute('aria-selected', active ? 'true' : 'false');
-        btn.tabIndex = active ? 0 : -1;
+        if(btn.getAttribute('aria-selected')!==String(active)) btn.setAttribute('aria-selected',String(active));
+        if(btn.tabIndex!==(active?0:-1)) btn.tabIndex=active?0:-1;
       });
     }
     state.pages.forEach((page, idx) => {
       const active = idx === nextIndex;
       page.el.classList.toggle('active', active);
-      page.el.hidden = !active;
-      page.el.setAttribute('aria-hidden', active ? 'false' : 'true');
+      if(page.el.hidden!==!active) page.el.hidden=!active;
+      if(page.el.getAttribute('aria-hidden')!==String(!active)) page.el.setAttribute('aria-hidden',String(!active));
     });
   }
   function showTabbedPage(index, resetPageScroll = false) {
@@ -302,14 +311,14 @@
       state.viewportUpdatePending = true;
       return;
     }
-    if (state.raf) cancelAnimationFrame(state.raf);
+    if (state.raf) return;
     state.raf = requestAnimationFrame(() => {
       state.raf = 0;
       const { w, h } = getViewportSize();
       const portrait = h > w;
       const widthChanged = Math.abs(w - state.layoutWidth) > 1;
       const orientationChanged = state.layoutPortrait !== portrait;
-      if (widthChanged || orientationChanged) applyMode();
+      if (widthChanged || orientationChanged || !document.body.classList.contains(getMode())) applyMode();
       else updateMobileOffsets();
     });
   }

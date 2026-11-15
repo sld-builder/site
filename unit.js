@@ -229,7 +229,7 @@ function renderDpsBaseUnitSummary(s,hidden=false){
   const requiredDps=Number(info?.requiredDps);
   if(hidden){
     el.hidden=true;
-    el.innerHTML='';
+    setHTMLIfChanged(el,'');
     return;
   }
   const valid=Number.isFinite(requiredDps) && requiredDps>0;
@@ -249,7 +249,7 @@ function renderDpsBaseUnitSummary(s,hidden=false){
   const specDpsLabel=($('dpsMainLabel')?.textContent || '스펙 DPS').trim();
   const specDpsValue=($('dpsVal')?.textContent || '—').trim();
   const specDpsHtml=`<div class="dps-base-unit-summary-item dps-base-unit-spec-dps"><span class="dps-feature-heading"><span class="dps-lbl">${escapeHtml(specDpsLabel)}</span></span><b class="dps-num">${escapeHtml(specDpsValue)}</b></div>`;
-  el.innerHTML=`<div class="dps-base-unit-summary-row"><div class="dps-base-unit-top board-context-header">${contextHtml}${stageHtml}${specDpsHtml}</div><div class="dps-base-unit-results" aria-label="유닛 클리어 결과">${requiredHtml}${expectedHtml}${achievementHtml}</div></div>`;
+  setHTMLIfChanged(el,`<div class="dps-base-unit-summary-row"><div class="dps-base-unit-top board-context-header">${contextHtml}${stageHtml}${specDpsHtml}</div><div class="dps-base-unit-results" aria-label="유닛 클리어 결과">${requiredHtml}${expectedHtml}${achievementHtml}</div></div>`);
 
   el.hidden=false;
 }
@@ -976,10 +976,10 @@ function renderDpsSanctuarySummary(info=currentDpsSanctuaryInfo()){
       `<td>${slot.skill1 ? `${slot.skill1} ${slot.count1}회` : '선택 안함'}</td>`+
       `<td>${slot.skill2 ? `${slot.skill2} ${slot.count2}회` : '선택 안함'}</td></tr>`];
   });
-  summary.innerHTML=`<table aria-label="설정된 성소 정보 기본정보"><colgroup><col class="sanctuary-summary-slot"><col class="sanctuary-summary-round"><col class="sanctuary-summary-round"><col class="sanctuary-summary-skill"><col class="sanctuary-summary-skill"></colgroup><thead><tr>`+
+  setHTMLIfChanged(summary,`<table aria-label="설정된 성소 정보 기본정보"><colgroup><col class="sanctuary-summary-slot"><col class="sanctuary-summary-round"><col class="sanctuary-summary-round"><col class="sanctuary-summary-skill"><col class="sanctuary-summary-skill"></colgroup><thead><tr>`+
     `<th scope="col">슬롯 번호</th><th scope="col">${startLabel}</th><th scope="col">${endLabel}</th>`+
     `<th scope="col">1번 스킬 / 사용 횟수</th><th scope="col">2번 스킬 / 사용 횟수</th>`+
-    `</tr></thead><tbody>${rows.join('')||'<tr><td colspan="5" class="unit-basic-empty">선택한 정보가 없습니다</td></tr>'}</tbody></table>`;
+    `</tr></thead><tbody>${rows.join('')||'<tr><td colspan="5" class="unit-basic-empty">선택한 정보가 없습니다</td></tr>'}</tbody></table>`);
 }
 function renderDpsSanctuaryInfo(){
   const rows=$('unitSanctuaryRows');

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <script>
-window.APP_VERSION = "B-VAERON-V36";
+window.APP_VERSION = "B-VAERON-V36v2";
 window.DPS_BUILD_VERSION = window.APP_VERSION;
 window.DPS_STANDALONE_VIEW = (function(){
   var requested=new URLSearchParams(window.location.search).get('dpsWindow');
@@ -245,14 +245,14 @@ html:not(.dps-booting) #dpsBootScreen{display:none}
 <meta content="개복디 빌더 - 통합 빌드 계산 HUB" property="og:title"/>
 <meta content="특성 투자·재화 사용량 계산부터 스펙·DPS 분석까지 한 번에, 통합 빌드 계산 HUB" property="og:description"/>
 <!-- OG/Twitter 이미지 캐시: 앱 버전 변경 시 아래 세 URL을 같은 버전으로 맞춥니다. -->
-<meta content="https://sld-builder.github.io/site/logo.png?v=B-VAERON-V36" property="og:image"/>
-<meta content="https://sld-builder.github.io/site/logo.png?v=B-VAERON-V36" property="og:image:secure_url"/>
+<meta content="https://sld-builder.github.io/site/logo.png?v=B-VAERON-V36v2" property="og:image"/>
+<meta content="https://sld-builder.github.io/site/logo.png?v=B-VAERON-V36v2" property="og:image:secure_url"/>
 <meta content="image/png" property="og:image:type"/>
 <meta content="개복디 빌더 로고" property="og:image:alt"/>
 <meta content="summary_large_image" name="twitter:card"/>
 <meta content="개복디 빌더 - 통합 빌드 계산 HUB" name="twitter:title"/>
 <meta content="특성 투자·재화 사용량 계산부터 스펙·DPS 분석까지 한 번에, 통합 빌드 계산 HUB" name="twitter:description"/>
-<meta content="https://sld-builder.github.io/site/logo.png?v=B-VAERON-V36" name="twitter:image"/>
+<meta content="https://sld-builder.github.io/site/logo.png?v=B-VAERON-V36v2" name="twitter:image"/>
 <meta content="개복디 빌더 로고" name="twitter:image:alt"/>
 <link href="https://cdn.jsdelivr.net" rel="preconnect"/>
 <link crossorigin="" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet"/>
@@ -290,125 +290,17 @@ html:not(.dps-booting) #dpsBootScreen{display:none}
 </script>
 <script id="standaloneExperience">
 (function(){
-'use strict';
-  function mountControlLabels(){
-    var definitions=[
-      ['[data-nexus-view="dps"]','개복디 빌더 이동',window.innerWidth<768?32:34],
-      ['#btnFontSizePopup','글씨 크기 조절',window.innerWidth<768?32:34],
-      ['.font-scale-trigger','글씨 크기 조절',30],
-      ['.header-nexus-link','개복디 넥서스',window.innerWidth<600?30:35],
-      ['#independentWindowToggle','독립 창 선택',35],
-      ['#unitSanctuaryReset','전체 초기화',30],
-    ];
-    definitions.forEach(function(definition){
-      document.querySelectorAll(definition[0]).forEach(function(control){
-        var base=definition[2];
-        control.style.setProperty('--nexus-control-base',base+'px');
-        if(control.classList.contains('nexus-labelled-control')) return;
+  function init(){
+    [['#independentWindowToggle','독립 창 선택',35],['.header-nexus-link','개복디 넥서스',35],['.font-scale-trigger','글씨 크기 조절',30]].forEach(function(def){
+      document.querySelectorAll(def[0]).forEach(function(control){
         control.classList.add('nexus-labelled-control');
-        control.dataset.nexusControlName=definition[1];
+        control.style.setProperty('--nexus-control-base',def[2]+'px');
+        control.dataset.nexusControlName=def[1];
         control.removeAttribute('title');
-        var icon=document.createElement('span');
-        icon.className='nexus-control-icon';
-        icon.setAttribute('aria-hidden','true');
-        while(control.firstChild) icon.appendChild(control.firstChild);
-        control.appendChild(icon);
-        var label=document.createElement('span');
-        label.className='nexus-action-label';
-        label.setAttribute('aria-hidden','true');
-        var text=document.createElement('span');
-        text.textContent=definition[1];
-        label.appendChild(text);
-        control.appendChild(label);
       });
     });
-    if(window.__nexusControlLabelsBound) return;
-    window.__nexusControlLabelsBound=true;
-    var current=null,armed=null,touchTarget=null,lastInput='keyboard';
-    function findControl(target){return target && target.closest ? target.closest('.nexus-labelled-control') : null;}
-    function hide(){
-      if(current) current.classList.remove('is-label-visible','is-label-touch');
-      current=null;
-      armed=null;
-    }
-    function show(control,touch){
-      if(!control || control.disabled) return;
-      if(current && current!==control) hide();
-      current=control;
-      control.classList.add('is-label-visible');
-      control.classList.toggle('is-label-touch',!!touch);
-      var label=control.querySelector('.nexus-action-label');
-      var width=Math.ceil(label.scrollWidth);
-      var base=parseFloat(control.style.getPropertyValue('--nexus-control-base')) || 34;
-      control.style.setProperty('--nexus-label-width',width+'px');
-      control.style.setProperty('--nexus-control-expanded',(base+width+12)+'px');
-    }
-    // 마우스: 커서가 버튼에 머무는 동안 이름 표시. 내부 아이콘 이동은 무시합니다.
-    document.addEventListener('pointerover',function(event){
-      if(event.pointerType!=='mouse') return;
-      lastInput='mouse';
-      var control=findControl(event.target);
-      if(control && !control.contains(event.relatedTarget)) show(control,false);
-    });
-    document.addEventListener('pointerout',function(event){
-      if(event.pointerType!=='mouse') return;
-      var control=findControl(event.target);
-      if(control && current===control && !control.contains(event.relatedTarget)) hide();
-    });
-    // 키보드 포커스는 접근성을 위해 확장하되, 터치로 생긴 포커스는 확장하지 않습니다.
-    document.addEventListener('focusin',function(event){
-      var control=findControl(event.target);
-      if(control && lastInput==='keyboard') show(control,false);
-    });
-    document.addEventListener('focusout',function(event){
-      if(current && findControl(event.target)===current && !current.contains(event.relatedTarget)) hide();
-    });
-    document.addEventListener('pointerdown',function(event){
-      var touch=event.pointerType==='touch' || event.pointerType==='pen';
-      lastInput=touch?'touch':'mouse';
-      touchTarget=touch?findControl(event.target):null;
-      if(!findControl(event.target)) hide();
-    },true);
-    document.addEventListener('pointercancel',function(){touchTarget=null;},true);
-    document.addEventListener('click',function(event){
-      var control=findControl(event.target);
-      var touch=!!control && touchTarget===control;
-      touchTarget=null;
-      if(!control) return;
-      if(!touch){
-        // 마우스와 키보드는 클릭 한 번으로 기존 기능을 실행합니다.
-        armed=null;
-        return;
-      }
-      if(armed===control){
-        // 두 번째 터치는 원래 버튼/링크의 클릭 이벤트를 그대로 실행합니다.
-        hide();
-        return;
-      }
-      // 첫 번째 터치는 이름을 펼치기만 하고 모달·토글·링크 실행을 막습니다.
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      show(control,true);
-      armed=control;
-    },true);
-    document.addEventListener('keydown',function(event){
-      if(event.key==='Escape'){
-        touchTarget=null;
-        hide();
-      }
-      if(event.key==='Tab' || event.key==='Enter' || event.key===' ' || event.key.startsWith('Arrow')){
-        lastInput='keyboard';
-        touchTarget=null;
-        armed=null;
-      }
-    },true);
-    window.addEventListener('resize',function(){hide();mountControlLabels();},{passive:true});
-    window.addEventListener('blur',function(){touchTarget=null;hide();});
   }
-
-
-function init(){mountControlLabels();}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init,{once:true}); else init();
 })();
 </script>
 </head>
@@ -1161,7 +1053,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 
 <section class="trait-standalone-panel trait-utility-panel" aria-labelledby="traitUtilityListHeading">
-  <header class="trait-utility-section-head"><span class="trait-utility-section-mark" aria-hidden="true"><svg class="ui-header-glyph" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#dpsUiSparklesGlyph"/></svg></span><span class="trait-utility-section-label"><strong id="traitUtilityListHeading">특성 유틸 목록</strong></span></header>
+  <header class="trait-utility-section-head"><span class="trait-utility-section-mark" aria-hidden="true"><svg class="ui-header-glyph" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#dpsUiSparklesGlyph"/></svg></span><span class="trait-utility-section-label"><strong id="traitUtilityListHeading">특성 유틸 목록</strong></span><button id="traitExpansionToggle" class="ui-toolbar-btn trait-expansion-toggle" type="button" data-action="toggleTraitExpansionMode" aria-label="접힌 상태 유지 · 펼친 상태 유지로 전환" aria-pressed="false" data-nexus-control-name="접힌 상태 유지 · 펼친 상태 유지로 전환"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/><path class="trait-expand-arrows" d="m9 4 3-2 3 2m-6 16 3 2 3-2"/><path class="trait-collapse-arrows" d="m9 3 3 2 3-2m-6 18 3-2 3 2"/></svg></button></header>
   <div class="tp-body" id="traitBody"></div>
 </section>
 </div>

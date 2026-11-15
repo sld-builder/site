@@ -146,7 +146,8 @@ function normalizeXpInput(){
   if(v('xp')!==n) el.value=String(n.toLocaleString('ko-KR'));
   return n;
 }
-function setElementProp(id, prop, value){const el=$(id); if(el) el[prop]=value;}
+function setElementProp(id, prop, value){const el=$(id); const next=value==null?'':String(value); if(el && el[prop]!==next) el[prop]=next;}
+function setHTMLIfChanged(el,html){if(el && el._renderHTML!==html){el.innerHTML=html;el._renderHTML=html;}}
 function setText(id,val){setElementProp(id,'textContent',val);}
 function setValue(id,val){setElementProp(id,'value',String(val));}
 function setSelectOptions(select, options){
@@ -498,7 +499,7 @@ function dpsBoardContextHtml(){
 }
 function renderRightHeroContext(){
   const target=$('rightHeroCompactContext');
-  if(target) target.innerHTML=dpsBoardContextHtml();
+  if(target) setHTMLIfChanged(target,dpsBoardContextHtml());
   const tower=isTowerDifficulty();
   const planet=isPlanetExplorationDifficulty();
   setText('specHeroStageLabel',tower||planet?'현재 층':'현재 고행 / 라운드');
@@ -675,13 +676,13 @@ function renderXpCut(){
   const base=xpCutCoopBase(v('sp'));
   const target=$('xpCutRows');
   if(!target) return;
-  target.innerHTML=XP_CUT_DIVISOR_GROUPS.map(group=>{
+  setHTMLIfChanged(target,XP_CUT_DIVISOR_GROUPS.map(group=>{
     const rows=group.rows.map(row=>{
       const value=big(base/row.divisor);
       return `<div class="bus-cut-row"><span class="bus-cut-stage">${row.stage}·${row.divisor}배</span><span class="bus-cut-value">${value}</span></div>`;
     }).join('');
     return `<div class="bus-cut-group"><span class="bus-cut-mode">${group.label}</span><div class="bus-cut-group-rows">${rows}</div></div>`;
-  }).join('');
+  }).join(''));
 }
 
 function planetExplorationRestrictionsActive(){
@@ -790,7 +791,7 @@ function renderSkillDamage(s){
   if(pv) pv.textContent=`${(rows.penalty*100).toFixed(1)}%`;
   const el=$('skillRows');
   if(!el) return;
-  el.innerHTML=rows.items.map(row=>`<tr><td>${row.name}</td><td>${fmt(row.total,1)}%</td><td>AP ${fmt(ap,0)} / 더블 ${fmt(rows.doubleSpace,2)}</td></tr>`).join('');
+  setHTMLIfChanged(el,rows.items.map(row=>`<tr><td>${row.name}</td><td>${fmt(row.total,1)}%</td><td>AP ${fmt(ap,0)} / 더블 ${fmt(rows.doubleSpace,2)}</td></tr>`).join(''));
 }
 /* ── 05 · DPS표 및 미리보기 ── */
 const DPS_TABLE_DIFFICULTIES=DPS_CONFIG.dpsTable.difficulties;
@@ -1148,7 +1149,7 @@ function initAppHeaderLayout(){
   if(!header || window.DPS_STANDALONE_VIEW) return;
   function syncHeaderHeight(){
     const height=Math.ceil(header.getBoundingClientRect().height);
-    if(height>0) document.documentElement.style.setProperty('--app-header-h',height+'px');
+    if(height>0 && document.documentElement.style.getPropertyValue('--app-header-h')!==height+'px') document.documentElement.style.setProperty('--app-header-h',height+'px');
   }
   syncHeaderHeight();
   if(typeof ResizeObserver!=='undefined') new ResizeObserver(syncHeaderHeight).observe(header);
@@ -1295,7 +1296,28 @@ const OPTIMIZATION_TIERS=TIERS;
 // 게임 모드에 따른 특성 입력 제한을 두지 않는다. 기존 효과 계산 조건은 그대로 유지한다.
 /* 10-A · 특성 표시·투자 가능 상태 */
 // 펼침 여부는 화면 상태로만 관리하며 프리셋 데이터에는 저장하지 않는다.
-const expandedTraitTiers=new Set();
+const TRAIT_EXPANSION_KEY='vaeron.builder.traitListExpanded';
+let keepTraitTiersExpanded=false;
+try{keepTraitTiersExpanded=localStorage.getItem(TRAIT_EXPANSION_KEY)==='true';}catch{}
+const expandedTraitTiers=new Set(keepTraitTiersExpanded?TIERS:[]);
+function syncTraitExpansionButton(){
+  const button=$('traitExpansionToggle');
+  if(!button) return;
+  if(button.getAttribute('aria-pressed')!==String(keepTraitTiersExpanded)) button.setAttribute('aria-pressed',String(keepTraitTiersExpanded));
+  const label=keepTraitTiersExpanded?'펼친 상태 유지 · 접힌 상태 유지로 전환':'접힌 상태 유지 · 펼친 상태 유지로 전환';
+  if(button.getAttribute('aria-label')!==label) button.setAttribute('aria-label',label);
+  if(button.dataset.nexusControlName!==label) button.dataset.nexusControlName=label;
+}
+function toggleTraitExpansionMode(){
+  keepTraitTiersExpanded=!keepTraitTiersExpanded;
+  try{localStorage.setItem(TRAIT_EXPANSION_KEY,String(keepTraitTiersExpanded));}catch{}
+  expandedTraitTiers.clear();
+  if(keepTraitTiersExpanded) TIERS.forEach(tier=>expandedTraitTiers.add(tier));
+  qsa('.trait-tier-panel[data-tier]').forEach(panel=>{
+    panel.querySelector('.trait-invest-list')?.getAnimations?.().forEach(animation=>animation.cancel());
+  });
+  updateTraits();
+}
 // 입력 요소를 DOM에 그대로 둔 채 높이만 애니메이션으로 전환한다.
 function setAccordionContentExpanded(content,expanded){
   if(!content) return;
@@ -1317,7 +1339,7 @@ function setAccordionContentExpanded(content,expanded){
   animation.onfinish=()=>{if(!expanded) content.hidden=true;};
 }
 function setTraitTierExpanded(tier,expanded,exclusive=true){
-  if(!TIERS.includes(tier)) return;
+  if(!TIERS.includes(tier) || keepTraitTiersExpanded) return;
   if(expanded && exclusive) [...expandedTraitTiers].filter(open=>open!==tier).forEach(open=>setTraitTierExpanded(open,false));
   if(expanded) expandedTraitTiers.add(tier);
   else expandedTraitTiers.delete(tier);
@@ -1329,7 +1351,7 @@ function setTraitTierExpanded(tier,expanded,exclusive=true){
   if(toggle) toggle.setAttribute('aria-expanded',String(expanded));
   setAccordionContentExpanded(list,expanded);
 }
-function updateTraits(){
+function buildTraitBoard(){
   const body=$('traitBody');
   if(!body) return;
   body.innerHTML=TIERS.map((tier,tierIndex)=>{
@@ -1376,6 +1398,55 @@ function updateTraits(){
       <div class="trait-invest-list" id="traitTierContent${tierIndex+1}" ${isExpanded?'':'hidden'}>${rows}</div>
     </section>`;
   }).join('');
+}
+const traitBoardNodes=new WeakMap();
+function updateTraits(){
+  syncTraitExpansionButton();
+  const body=$('traitBody');
+  if(!body) return;
+  let cached=traitBoardNodes.get(body);
+  if(!cached || !cached.groups[0]?.panel.isConnected){
+    buildTraitBoard();
+    cached={groups:TIERS.map(tier=>{
+      const panel=Array.from(body.children).find(el=>el.dataset.tier===tier);
+      return {tier,panel,toggle:panel.querySelector('.trait-tier-toggle'),list:panel.querySelector('.trait-invest-list'),traits:TRAITS.filter(t=>t[2]===tier && t[0]!==116).map(trait=>{
+        const card=panel.querySelector(`[data-trait-id="${trait[0]}"]`);
+        return {trait,card,input:card.querySelector('.tv-input'),cost:card.querySelector('.trait-cost-chip'),effect:card.querySelector('.trait-effect-text'),buttons:[...card.querySelectorAll('button')],summary:null};
+      })};
+    })};
+    traitBoardNodes.set(body,cached);
+  }
+  const abyss=isAbyssDifficulty();
+  const text=(el,value)=>{if(el.textContent!==value) el.textContent=value;};
+  for(const group of cached.groups){
+    let invested=0,maximum=0,mastered=group.traits.length>0;
+    for(const {trait,card,input,cost,effect,buttons} of group.traits){
+      const [row,,,type,rate]=trait, n=INV[row]||0, mx=TMAX[row]||999, isMax=n>=mx;
+      invested+=n;maximum+=mx;mastered=mastered&&isMax;
+      card.classList.toggle('is-mastered',isMax);
+      if(input.value!==String(n)) input.value=String(n);
+      const currentRate=abyss?({133:15,134:7.5,135:1.5,136:3}[row]??rate):rate;
+      text(effect,row===58?'강화수 +1':row===96?'2단 강화 +0.5':traitEffectText(row,type,currentRate));
+      text(cost,isMax?'✓ 마스터 완료':`다음 투자 · ${fullNumber(nextCost(row))}`);
+      cost.classList.toggle('is-complete',isMax);
+      for(const button of buttons){
+        const disabled=button.dataset.action==='traitQuickAdjust' ? mx-n<Number(button.dataset.step) : button.dataset.delta==='-1' ? n<=0 : isMax;
+        if(button.disabled!==disabled) button.disabled=disabled;
+      }
+    }
+    let summary=group.toggle.querySelector('.trait-tier-summary');
+    if(invested>0){
+      if(!summary){summary=document.createElement('span');summary.className='collapsed-summary trait-tier-summary';group.toggle.append(summary);}
+      text(summary,mastered?'✓ 전체 마스터':`${fullNumber(invested)} / ${fullNumber(maximum)}`);
+      summary.classList.toggle('is-mastered',mastered);
+    }else summary?.remove();
+    const expanded=expandedTraitTiers.has(group.tier);
+    if(group.list.inert===expanded) group.list.inert=!expanded;
+    if(group.list.getAttribute('aria-hidden')!==String(!expanded)) group.list.setAttribute('aria-hidden',String(!expanded));
+    group.panel.classList.toggle('is-expanded',expanded);
+    if(group.toggle.getAttribute('aria-expanded')!==String(expanded)) group.toggle.setAttribute('aria-expanded',String(expanded));
+    if(!group.list.getAnimations?.().some(animation=>animation.id==='dpsAccordion') && group.list.hidden===expanded) group.list.hidden=!expanded;
+  }
 }
 /* 수동 특성 입력·반복 투자 이벤트 */
 let traitKeyNavGuardUntil=0;
@@ -1809,13 +1880,16 @@ function renderZeroBenefitsPreview(){
   const position=$('zeroBenefitsPosition');
   const prev=$('zeroBenefitsPrev');
   const next=$('zeroBenefitsNext');
-  if(title) title.textContent=`더제로 ${entry.name} 혜택`;
-  if(label) label.textContent=index===current?'현재 타이틀':'단계 미리보기';
-  if(position) position.textContent=`${index+1} / ${table.length}`;
+  setText('zeroCurrentBenefitsTitle',`더제로 ${entry.name} 혜택`);
+  setText('zeroBenefitsViewLabel',index===current?'현재 타이틀':'단계 미리보기');
+  setText('zeroBenefitsPosition',`${index+1} / ${table.length}`);
   if(prev) prev.disabled=index===0;
   if(next) next.disabled=index===table.length-1;
   if(items){
     const benefits=entry.benefits||[];
+    const benefitsKey=JSON.stringify(benefits);
+    if(items._benefitsKey===benefitsKey) return;
+    items._benefitsKey=benefitsKey;
     // Column-major reading order: for 10 benefits, left 1~6 and right 7~10.
     // Longer tiers distribute the overflow to avoid unnecessarily tall columns.
     const rows=benefits.length<=6 ? Math.ceil(benefits.length/2) : Math.max(6,Math.ceil(benefits.length/2));
@@ -1851,7 +1925,7 @@ function updateZeroScoreCalculator(){
     total+=result.score;
     const out=row.querySelector('.zero-row-score');
     if(out){
-      out.textContent=`+${fullNumber(result.score)}`;
+      if(out.textContent!==`+${fullNumber(result.score)}`) out.textContent=`+${fullNumber(result.score)}`;
       out.classList.toggle('is-pending',result.score>0);
     }
     const summary=row.querySelector('.zero-calc-head-summary');
@@ -1883,9 +1957,10 @@ function updateZeroScoreCalculator(){
         ? `<span class="zero-calc-progress">${progressRows.join('')}</span>`
         : '';
       summary.hidden=!progressRows.length;
-      summary.innerHTML=achievedCount===2
+      row.classList.toggle('is-complete',achievedCount===2);
+      setHTMLIfChanged(summary,achievedCount===2
         ? '<span class="zero-calc-complete"><span class="zero-calc-all-achieved">✓ 목표 달성</span></span>'
-        : progressTable;
+        : progressTable);
     }
   });
   const targetScore=currentTotal+total;
@@ -1900,7 +1975,7 @@ function updateZeroScoreCalculator(){
   ];
   values.forEach(([selector,value])=>{
     const element=calc.querySelector(selector);
-    if(element) element.textContent=String(value);
+    if(element && element.textContent!==String(value)) element.textContent=String(value);
   });
   updateZeroRankHighlights(currentRank,targetRank);
   zeroBenefitActualIndex=getZeroRankTable().indexOf(zeroRankEntry(currentTotal));
@@ -2068,6 +2143,7 @@ function bindZeroScoreCalculator(){
 /* ── 12 · 화면 이벤트 및 연결 ── */
 let appEventsBound=false;
 const ACTION_HANDLERS={
+  toggleTraitExpansionMode:()=>toggleTraitExpansionMode(),
   optimizeSP,
   optimizeUtility,
   clearUtility:()=>requestConfirmAction('clearUtility','한 번 더 누르면 유틸 초기화', clearUtility),
@@ -2197,8 +2273,9 @@ function bindReactiveInputs(){
       if(DPS_UNIT_LINKED_BUFF_UNITS[target.id]) updateDpsUnitFromLinkedBuff(target);
       syncBuffChoiceButtons();
     }
-    cancelAnimationFrame(raf);
+    if(raf) return;
     raf=requestAnimationFrame(()=>{
+      raf=0;
       commitAppUpdate();
     });
   };
@@ -2270,9 +2347,13 @@ function initAppSelectDropdowns(){
   function syncButton(select,button){
     if(!select.isConnected || !button.isConnected) return;
     const option=select.selectedOptions?.[0];
-    button.querySelector('.app-select-button-value').textContent=option?.textContent.trim() || '선택 안함';
-    button.disabled=select.disabled || !optionsFor(select).some(item=>!item.disabled && !item.parentElement?.disabled);
-    button.setAttribute('aria-label',`${label(select)}: ${option?.textContent.trim() || '선택 안함'}`);
+    const value=option?.textContent.trim() || '선택 안함';
+    const valueNode=button.querySelector('.app-select-button-value');
+    if(valueNode.textContent!==value) valueNode.textContent=value;
+    const disabled=select.disabled || !optionsFor(select).some(item=>!item.disabled && !item.parentElement?.disabled);
+    if(button.disabled!==disabled) button.disabled=disabled;
+    const accessibleName=`${label(select)}: ${value}`;
+    if(button.getAttribute('aria-label')!==accessibleName) button.setAttribute('aria-label',accessibleName);
     if(activeSelect===select && (button.disabled || button.hidden)) closeMenu();
   }
   function enhance(select){
