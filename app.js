@@ -87,7 +87,9 @@ function showToast(message, type='ok', durationMs){
     const text=String(message ?? '').trim();
     if(!text) return;
     const toastKey=`${type}:${text}`;
-    if(Array.from(root.children).some(item=>item.dataset.toastKey===toastKey)) return;
+    for(const item of root.children){
+      if(item.dataset.toastKey===toastKey) return;
+    }
     while(root.children.length>=4) root.firstElementChild?.remove();
     const el=document.createElement('div');
     el.className='toast '+type;
@@ -658,16 +660,18 @@ function renderEnhanceSummary(stats=null){
     sepRuneAttackView:`+${fmt(sepPlusUniqueAd,0)}`
   });
 }
+const ENCHANT_PREVIEW_FIELDS=Object.freeze([
+  ['ad','enchOutAD'],['cri','enchOutCRI'],['ua','enchOutUA'],
+  ['td','enchOutTD'],['sr','enchOutSR'],['hr','enchOutHR']
+]);
 function renderEnchantPreview(){
-  const keys=['ad','cri','ua','td','sr','hr'];
-  const outIds=['enchOutAD','enchOutCRI','enchOutUA','enchOutTD','enchOutSR','enchOutHR'];
   const enchantStats=currentEnchantStats();
-  keys.forEach((key,i)=>{
+  ENCHANT_PREVIEW_FIELDS.forEach(([key,outId],i)=>{
     const e=enchantStats[i];
     const val=key==='ua'
       ? e[key].toFixed(2)+'×'
       : fmt(e[key], ['ad','cri','td'].includes(key)?0:2);
-    const out=$(outIds[i]);
+    const out=$(outId);
     if(out) out.textContent=val;
   });
 }
@@ -1077,6 +1081,10 @@ function activateIntegratedTab(group,index){
     panel.classList.toggle('is-active',active);
     panel.hidden=!active;
   });
+  if(group==='traitWorkspace'){
+    const expansionToggle=$('traitExpansionToggle');
+    if(expansionToggle) expansionToggle.hidden=index!==1;
+  }
 }
 function bindIntegratedTabEvents(){
   document.addEventListener('click',event=>{

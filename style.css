@@ -322,7 +322,6 @@ body.dps-compare-modal-open{overflow:hidden;}
 .dps-compare-modal{display:flex;flex-direction:column;width:min(1520px,100%);height:auto;max-height:min(770px,calc(100dvh - 24px));min-height:0;overflow:hidden;border:1px solid var(--ui-modal-border);border-radius:var(--ui-panel-radius);background:var(--ui-panel-body-bg);color:var(--ui-text);box-shadow:var(--ui-modal-shadow);}
 .dps-compare-header{display:flex;align-items:center;justify-content:space-between;flex:0 0 auto;height:42px;min-height:42px;padding:5px 8px;border-bottom:1px solid var(--ui-integrated-head-line);background:var(--ui-integrated-head-bg);box-sizing:border-box;}
 .dps-compare-header h2{display:flex;align-items:center;gap:7px;margin:0;color:var(--ui-integrated-head-text);font-size:calc(14px * var(--app-font-scale));font-weight:var(--ui-main-title-weight);line-height:1.25;}
-.dps-compare-title-mark{display:grid;place-items:center;flex:0 0 28px;width:28px;height:24px;box-sizing:border-box;border:0;border-radius:0;background:transparent;color:var(--ui-header-mark-color);font-size:15px;line-height:1;}
 .dps-compare-close{display:grid;place-items:center;width:31px;height:31px;padding:0;border:1px solid var(--ui-button-border);border-radius:var(--ui-control-radius);background:var(--ui-button-bg);color:var(--ui-button-text);font-size:20px;cursor:pointer;}
 .dps-compare-close:hover{border-color:var(--ui-button-hover-border);}
 .dps-compare-close:focus-visible{outline:2px solid #83b5ff;outline-offset:-3px;}
@@ -411,7 +410,6 @@ body,input,button,select,textarea{font-family:var(--font-main);}
 .hdr-brand{display:flex;align-items:center;gap:8px;min-width:0;flex:1 1 auto;}
 .brand-insignia{display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;min-width:0;}
 .brand-insignia svg{display:block;width:100%;height:100%;filter:drop-shadow(0 0 3px rgba(45,153,250,.32));}
-.header-kicker{display:block;max-width:100%;font-size:calc(9.75px * var(--app-font-scale));line-height:1;letter-spacing:.18em;color:#85c8fa;white-space:nowrap;}
 .hdr-title-wrap{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;min-width:0;max-width:100%;padding-left:0;}
 .hdr-title-wrap h1{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;margin:0;min-width:0;max-width:100%;height:auto;min-height:24px;padding:0;overflow:hidden;text-align:left;color:#f4f8ff;text-shadow:0 0 15px rgba(92,145,209,.16);}
 .hdr-title-mainline{display:block;max-width:100%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:calc(18px * var(--app-font-scale));letter-spacing:-.035em;line-height:1.18;text-align:left;}
@@ -777,7 +775,6 @@ body.is-tablet.is-portrait-view .stat-dps-card,body.is-tablet.is-portrait-view .
 body.is-mobile .hdr{display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;justify-content:space-between;min-height:42px;padding:0 8px;gap:7px;}
 body.is-mobile .hdr-brand{width:auto;min-width:0;flex:1 1 auto;display:flex;align-items:center;justify-content:flex-start;gap:7px;}
 body.is-mobile .brand-insignia{flex:0 0 27px;width:27px;height:27px;}
-body.is-mobile .header-kicker{font-size:calc(7.5px * var(--app-font-scale));letter-spacing:.06em;}
 body.is-mobile .hdr-title-wrap{min-width:0;flex:1 1 auto;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;max-width:none;padding-left:0;}
 body.is-mobile .hdr h1{width:100%;max-width:100%;height:auto;min-height:18px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 body.is-mobile .hdr-title-mainline{font-size:calc(13.5px * var(--app-font-scale));letter-spacing:-.045em;}
@@ -943,14 +940,9 @@ body .trait-optimizer-panel .trait-dashboard-tools .trait-scope-actions > .trait
   body .trait-optimizer-panel .trait-dashboard-tools .trait-scope-actions>.trait-scope-reset{min-width:87px;padding:0 6px;font-size:calc(10.75px * var(--app-font-scale));}
 }
 body .trait-utility-panel{width:100%;min-width:0;margin:0 0 var(--trait-card-gap,12px);padding:0;overflow:hidden;}
-body .trait-utility-section-head{font-size:var(--ui-main-title-font);font-weight:var(--ui-main-title-weight);display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:8px;padding:8px 10px;height:auto;min-height:var(--ui-integrated-head-height);max-height:none;background:var(--ui-integrated-head-bg);border-bottom:1px solid var(--ui-integrated-head-line);color:var(--ui-integrated-head-text);}
 /* 투자 보조 버튼은 아래 단일 PIP 공통 스타일을 사용합니다. */
 @media(max-width:600px){
-  body .trait-utility-section-head{gap:5px;padding:7px;}
 }
-body .trait-utility-section-mark{display:grid;place-items:center;box-sizing:border-box;flex:0 0 32px;width:32px;height:28px;min-width:32px;padding:0;border:0;border-radius:0;background:transparent;color:var(--ui-header-mark-color);font-size:17.25px;line-height:1;box-shadow:none;}
-body .trait-utility-section-label{display:grid;gap:4px;min-width:0;}
-body .trait-utility-section-label strong{color:var(--ui-integrated-head-text);font-size:var(--ui-main-title-font);font-weight:var(--ui-main-title-weight);line-height:1.25;text-shadow:none;}
 body .trait-utility-panel .tp-body{min-width:0;padding:0;}
 body .trait-optimizer-panel .trait-dashboard-tools .btn,body .trait-optimizer-panel .trait-dashboard-tools select{width:100%;min-width:0;height:29px;min-height:29px;margin:0;border-radius:var(--ui-control-radius);display:flex;align-items:center;justify-content:center;text-align:center;text-align-last:center;font-size:calc(12px * var(--app-font-scale));line-height:1;white-space:nowrap;}
 body .trait-optimizer-panel .trait-dashboard-tools .btn{gap:4px;min-height:32px;height:32px;padding:0 7px;border:1px solid #7f92a1;border-radius:9px;background:linear-gradient(125deg,#2b74b7,#1e548d);color:#f8fcff;box-shadow:inset 0 1px rgba(255,255,255,.17),0 3px 12px rgba(16,62,122,.21);white-space:normal;overflow-wrap:anywhere;transition:transform .15s,filter .15s;}
@@ -1084,9 +1076,6 @@ body .xp-sp-card .basic-info-row .battle-mode-guide-trigger:hover,body .xp-sp-ca
 .battle-mode-guide-head{flex:0 0 auto;}
 .battle-mode-guide-panel{min-height:0;padding:14px 16px 16px;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;background:var(--ui-panel-body-bg);}
 .battle-mode-guide-panel>strong{display:block;margin:0 0 8px;color:#f0f4fa;font-size:calc(13px * var(--app-font-scale));font-weight:650;}
-.battle-mode-guide-steps{display:grid;gap:7px;margin:0 0 10px;padding:0;list-style:none;}
-.battle-mode-guide-steps li{padding:0 0 0 11px;border-left:2px solid #4c6078;color:#d5dfeb;line-height:1.5;word-break:keep-all;overflow-wrap:break-word;}
-.battle-mode-guide-steps b{display:block;color:#f0f4fa;font-weight:650;}
 .battle-mode-guide-panel .battle-mode-guide-muted{margin:0 0 7px;color:#a7b2c1;font-size:calc(11.5px * var(--app-font-scale));line-height:1.5;word-break:keep-all;}
 .battle-mode-guide-extra{margin-top:11px;border:1px solid #4c6078;border-radius:9px;background:#121a25;}
 .battle-mode-guide-extra summary{padding:10px 12px;color:#d6e8f9;font-weight:600;cursor:pointer;list-style-position:inside;}
@@ -1388,6 +1377,7 @@ body .build-polish .trait-tier-panel .trait-quick-actions{min-width:0;}
   body .build-polish .trait-tier-panel .trait-tools button{padding-inline:6px;white-space:normal;}
 }
 /* ── 11 · 헤더·독립 창·유닛 보드 ── */
+/* 11-A · 글로벌 헤더·독립 창 */
 /* 글로벌 헤더 넥서스 이동: 링크 동작은 유지하고 N 아이콘 하나로 공간을 절약한다. */
 .btn.subtle.header-nexus-link{display:inline-grid;place-items:center;flex:0 0 30px;box-sizing:border-box;width:30px;min-width:30px;height:30px;min-height:30px;padding:0;border:1px solid #385371;border-radius:10px;background:linear-gradient(145deg,#17283f,#0b1829);color:#d5f4ff;box-shadow:inset 0 1px rgba(255,255,255,.06);text-decoration:none;transition:transform .17s,filter .17s,box-shadow .17s,border-color .17s;}
 .btn.subtle.header-nexus-link:hover{border-color:#77b3ef;text-decoration:none;}
@@ -1400,9 +1390,9 @@ body .build-polish .trait-tier-panel .trait-quick-actions{min-width:0;}
 @media(min-width:800px) and (hover:hover) and (pointer:fine){
   body:not(.is-mobile):not(.is-tablet) .hdr.app-header .hdr-meta{gap:10px;}
 }
+/* 11-B · 공통 보조 조작 */
 /* 단일 PIP 버튼을 기준으로 분석 보드·투자 보조·버스 성소·승단 점수 아이콘의 테두리, 배경, 크기, 상태를 통일합니다. */
 body .right-workspace-window-toggle:is(:hover,:focus-visible),body .right-workspace-window-toggle[aria-expanded="true"]{background:#1c3858;border-color:#81b8f5;outline:2px solid rgba(129,184,245,.4);outline-offset:1px;}
-body .right-workspace-window-toggle .nexus-control-icon svg{display:block;flex:none;width:17px;height:17px;}
 body .right-workspace-window-menu{position:fixed;z-index:9500;display:grid;gap:3px;box-sizing:border-box;width:256px;max-width:calc(100vw - 16px);padding:6px;border:1px solid #49698c;border-radius:10px;background:#102038;box-shadow:0 12px 32px rgba(0,0,0,.48);}
 body .right-workspace-window-menu[hidden]{display:none;}
 body .right-workspace-window-menu button{display:flex;align-items:center;box-sizing:border-box;width:100%;min-height:36px;padding:8px 11px;border:0;border-radius:6px;background:transparent;color:#e2efff;font:inherit;font-size:12px;text-align:left;cursor:pointer;}
@@ -1440,14 +1430,15 @@ body :is(.col-left>.basic-goal-cards>.basic-goal-title,.right-workspace-head,.tr
 body .trait-scope-heading{min-height:var(--v0030-sub-height);height:auto;box-sizing:border-box;}
 body :is(.basic-goal-brand-copy,.right-workspace-copy,.trait-scope-heading){gap:0;}
 body .trait-preset-form-heading>small,body .trait-scope-heading>small,body .unit-slot-modal-heading small{display:none;}
-body :is(.basic-goal-brand-copy,.right-workspace-copy) > strong,body .trait-build-merged-panel .optimizer-head-title,body .trait-optimizer-panel .optimizer-head-title,body .trait-utility-section-label strong{font-size:var(--v0030-head-font);font-weight:var(--ui-main-title-weight);line-height:1.25;letter-spacing:-.2px;color:var(--ui-integrated-head-text);text-shadow:none;}
+body :is(.basic-goal-brand-copy,.right-workspace-copy) > strong,body .trait-build-merged-panel .optimizer-head-title,body .trait-optimizer-panel .optimizer-head-title{font-size:var(--v0030-head-font);font-weight:var(--ui-main-title-weight);line-height:1.25;letter-spacing:-.2px;color:var(--ui-integrated-head-text);text-shadow:none;}
 body :is(.basic-goal-brand-mark,.right-workspace-mark,.trait-utility-section-mark){box-sizing:border-box;flex:0 0 var(--v0030-head-mark-width,32px);width:var(--v0030-head-mark-width,32px);height:var(--v0030-head-mark-height,28px);min-width:var(--v0030-head-mark-width,32px);min-height:var(--v0030-head-mark-height,28px);border:0;border-radius:0;background:transparent;color:var(--ui-header-mark-color);font-size:var(--v0030-head-mark-font,17.25px);line-height:1;}
 @media(max-width:520px){
   :root{--v0030-head-height:47px;--v0030-sub-height:36px;}
 }
+/* 11-C · 유닛 슬롯·분석 보드 */
 /* 유닛 보드 · 1~10번 슬롯·요약 카드·상세 설정 */
 /* 작은 영문 부제를 없앤 뒤 모든 주요 헤더의 제목을 한 줄로 강조 */
-body .header-kicker,body .buff-config-heading small{display:none;}
+body .buff-config-heading small{display:none;}
 body .hdr-title-wrap{justify-content:center;}
 body .hdr-title-wrap h1{font-size:clamp(calc(13px * var(--app-font-scale)),1.25vw,calc(18px * var(--app-font-scale)));line-height:1.28;}
 body.is-mobile .hdr-title-wrap h1{font-size:calc(13px * var(--app-font-scale));}
@@ -1467,13 +1458,13 @@ body .nexus-labelled-control[hidden]{display:none!important}
 body:is(.is-mobile,.is-tablet) .hdr-meta .right-workspace-window-toggle.nexus-labelled-control{display:none!important}
 body .hdr.app-header{padding-right:10px;box-sizing:border-box;}
 body .hdr-meta .font-scale-ctrl{margin-right:0;}
-body .trait-utility-section-head{grid-template-columns:auto minmax(0,1fr) auto;}
 body .trait-expansion-toggle{margin-left:auto;position:relative;width:30px;min-width:30px;height:28px;padding:0;display:grid;place-items:center;overflow:visible;}
 .trait-expansion-toggle[aria-pressed="true"]{color:var(--studio-head-accent,#7196c4);border-color:currentColor;}
 .trait-expansion-toggle[aria-pressed="false"] .trait-collapse-arrows,.trait-expansion-toggle[aria-pressed="true"] .trait-expand-arrows{display:none;}
 body [data-nexus-control-name]::after{content:attr(data-nexus-control-name);position:absolute;top:calc(100% + 8px);right:0;z-index:100;max-width:min(300px,90vw);padding:6px 9px;border:1px solid #394556;border-radius:5px;background:#10151d;color:#e7eef8;font:12px/1.5 system-ui,sans-serif;white-space:nowrap;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .12s ease;}
 body [data-nexus-control-name]:active::after,body [data-nexus-control-name]:focus-visible::after{opacity:1;visibility:visible;transition-delay:.4s;}
 @media(hover:hover){body [data-nexus-control-name]:hover::after{opacity:1;visibility:visible;transition-delay:.4s;}}
+/* 11-D · 특성 목록·승단 상태 */
 /* 헤더 일괄 펼침/접기와 접힌 전당 입력 요약 */
 /* 목록 전체가 공유하는 제목과 고정 열 정렬 */
 .zero-calc-table{--zero-progress-columns:calc(30px * var(--app-font-scale)) calc(34px * var(--app-font-scale)) calc(34px * var(--app-font-scale)) calc(76px * var(--app-font-scale));--zero-progress-gap:8px;}
@@ -1498,6 +1489,7 @@ body [data-nexus-control-name]:active::after,body [data-nexus-control-name]:focu
 @media(max-width:410px){
   .zero-calc-list-head{padding-left:8px;padding-right:8px;}
 }
+/* 11-E · 요약·상세 설정 및 모바일 */
 /* 유닛 보드와 상세 설정: 결과 → 수치 → 적용 설정 */
 /* 성소 정보: 유닛 구성 아래 독립 영역. 유닛 카드와 같은 슬롯 헤더, 3열 × 2행. */
 body #damageBoardUnitPanel{container-type:inline-size;}

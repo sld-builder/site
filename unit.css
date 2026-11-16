@@ -1,4 +1,5 @@
-/* 유닛 보드·쥬얼·슬롯 전용 스타일 · 기존 style.css 선택자를 이동 */
+/* 유닛 보드·쥬얼·슬롯 전용 스타일: 기능별 CSS 순서 유지 */
+/* ── 01 · 유닛·쥬얼·성소 기본 화면 ── */
 body .settings-polish #basicSettingsPanel1 :is(.rune-stat-head,.dps-jewel-settings-title){border-color:var(--settings-hairline);}
 body .right-analytics-workspace :is(.analytics-summary-group,.analytics-unit-summary-group){padding:10px 0 0;border:0;border-radius:0;background:transparent;box-shadow:none;overflow:visible;}
 body .right-analytics-workspace .analytics-unit-summary-group{display:grid;grid-template-columns:minmax(0,1fr);gap:0;align-items:stretch;}
@@ -283,11 +284,6 @@ body .unit-slot-number{display:grid;place-items:center;flex:0 0 29px;width:29px;
 body .unit-sanctuary-panel{display:grid;min-width:0;gap:12px;margin:26px 0 0;padding:0;border:0;border-radius:0;background:transparent;}
 body .unit-sanctuary-heading{display:flex;position:relative;align-items:center;justify-content:flex-start;gap:8px;margin:0;}
 body .unit-sanctuary-heading h3{display:flex;align-items:center;gap:9px;margin:0;color:var(--ui-text);font-size:calc(15px * var(--app-font-scale));line-height:1.4;}
-body .unit-sanctuary-help{position:static;min-width:0;}
-body .unit-sanctuary-help summary{display:grid;place-items:center;width:22px;height:22px;border:1px solid #52657b;border-radius:50%;background:#1a293a;color:#d6e8f9;cursor:pointer;font-size:calc(12px * var(--app-font-scale));list-style:none;}
-body .unit-sanctuary-help summary::-webkit-details-marker{display:none;}
-body .unit-sanctuary-help summary:focus-visible{outline:2px solid #97c5ff;outline-offset:2px;}
-body .unit-sanctuary-help[open] summary{background:#2a4055;}
 body .unit-sanctuary-guide{position:absolute;left:0;top:calc(100% + 6px);z-index:25;display:grid;gap:6px;width:min(320px,100%);box-sizing:border-box;padding:12px;border:1px solid #4c6078;border-radius:9px;background:#121a25;box-shadow:0 10px 28px rgba(0,0,0,.5);color:#c5d0de;font-size:calc(13px * var(--app-font-scale));line-height:1.5;word-break:keep-all;overflow-wrap:break-word;}
 body .unit-sanctuary-guide strong{font-size:calc(13px * var(--app-font-scale));font-weight:600;color:var(--ui-text);}
 body .unit-sanctuary-guide ul{display:grid;gap:6px;margin:0;padding-left:17px;}
@@ -606,12 +602,7 @@ body .analytics-polish #dpsJewelConfigGrid .jewel-ability{box-shadow:none;}
   body .analytics-polish #dpsBaseUnitSlotStack .ub-card-title strong{font-size:calc(13px * var(--app-font-scale));}
 }
 
-/* ===== 공통 UI 정돈 · 원본 스타일 이후 최종 적용 ===== */
-/* Hallmark · shape: app screen · genre: modern-minimal · theme: original V34 black · redesign: polish
- * nav: existing tool shell · signature: combat comparison table · states: preserved
- * axes: original-dark/system-sans/blue · posture: restrained · contrast: original palette preserved · v2.0.0 */
-/* Hallmark · pre-emit critique: colour and typography restored after user feedback; spacing only */
-/* Hallmark · waive 24b · original dense control geometry retained by user request · preserve the existing layout and font scaling */
+/* ── 02 · 공통 조작·헤더·테마 보정 ── */
 html, body { overflow-x: clip; }
 body :is(button,a,[role=button],input,select,textarea,[tabindex]):focus-visible {
   outline: 2px solid var(--btn-action-border-hover); outline-offset: -2px; transition: none !important;
@@ -636,7 +627,6 @@ body .analytics-polish .damage-board-subtabs .integrated-tab {
 body .settings-polish .trait-preset-actions { gap:8px; }
 body .settings-polish .trait-preset-actions .preset-command { min-height:52px; }
 body .settings-polish .trait-preset-form-grid { row-gap:12px; }
-body .build-polish .trait-master-actions { gap:8px; }
 body .build-polish .trait-tier-panel .trait-tools { gap:8px; }
 body .unit-sanctuary-fields { gap:12px 8px; align-items:end; }
 body .unit-sanctuary-field { gap:8px; }
@@ -775,7 +765,7 @@ body #battleModeGuideDialog .battle-mode-guide-extra .battle-mode-guide-muted { 
   body #battleModeGuideDialog .battle-guide-tabs button { font-size:calc(12px * var(--app-font-scale)); }
 }
 
-/* 원본 PC 비율 유지 · 중첩 박스 대신 열린 행으로 정렬. */
+/* ── 03 · 분석 요약·설정 패널 ── */
 body .right-analytics-workspace :is(.analytics-summary-group,.analytics-unit-summary-group,.analytics-unit-slots-group),
 body .right-analytics-workspace #statDpsSummary,
 body #dpsBaseUnitSummary .dps-base-unit-summary-row,
@@ -965,7 +955,7 @@ body #unitSanctuaryPanel .unit-sanctuary-card-head { align-items:center; gap:8px
   body .trait-clear-record-row { grid-template-columns:minmax(80px,.8fr) minmax(0,1.5fr); gap:8px; }
 }
 
-/* 세로 PC·태블릿·모바일: 본문과 분리한 고정 전환 바. */
+/* ── 04 · 탭 배치·반응형 화면 ── */
 body.is-tabbed .mobile-section-tabs {
   position:fixed !important; top:var(--app-header-h,var(--mobile-header-h,44px)) !important;
   left:0; right:0; z-index:59; width:100%; max-width:none; margin:0; padding:0 8px;
@@ -1178,7 +1168,7 @@ body :is(.integrated-tab,.dps-compare-tab,.trait-preset-modal-close,.unit-slot-m
   body :is(.integrated-tab,.dps-compare-tab), body #battleModeGuideDialog .battle-guide-tabs button { transition:none; }
 }
 
-/* 유닛 구성·성소 정보: 장식 배경 없이 제목과 구분선으로 구획한다. */
+/* ── 05 · 유닛 헤더·비교표·성소 정보 ── */
 body .right-analytics-workspace :is(.ub-collection-head,.unit-sanctuary-heading) {
   background:transparent; background-image:none; border-radius:0;
   border:0; border-bottom:1px solid var(--studio-head-line);
@@ -1238,4 +1228,90 @@ body .hdr.app-header{padding-right:10px;}
   body #basicSettingsPanel3 .zero-calc-name { gap:5px; }
   body #basicSettingsPanel3 .zero-calc-row-symbol { flex-basis:22px; width:22px; }
   body #basicSettingsPanel3 .zero-calc-name strong { font-size:calc(11px * var(--app-font-scale)); }
+}
+
+/* ── 06 · 버스 설정·성소 스킬·상세 대화상자 ── */
+body #basicSettingsPanel2 {
+  padding:12px;
+}
+body #basicSettingsPanel2 .basic-settings-inline-section {
+  min-width:0; padding:0; border:1px solid var(--studio-head-line);
+  border-radius:10px; background:var(--ui-panel-body-bg); overflow:hidden;
+}
+body #basicSettingsPanel2 .basic-settings-inline-section + .basic-settings-inline-section {
+  margin-top:16px; padding-top:0; border-top:1px solid var(--studio-head-line);
+}
+body #basicSettingsPanel2 .basic-settings-box-header {
+  display:flex; align-items:center; min-height:40px; padding:10px 14px;
+  border-bottom:1px solid var(--studio-head-line); background:var(--studio-head-bg);
+}
+body #basicSettingsPanel2 .basic-settings-inline-title {
+  display:block; width:auto; min-height:0; margin:0; padding:0;
+  border:0; border-radius:0; background:transparent; box-shadow:none;
+  font-size:calc(13px * var(--app-font-scale)); line-height:1.4;
+}
+body #basicSettingsPanel2 .basic-settings-inline-title::before,
+body #basicSettingsPanel2 .basic-settings-inline-title::after { content:none; }
+/* 내용 높이는 바뀌어도 안내 제목과 탭은 같은 상단 좌표를 유지한다. */
+body #battleModeGuideDialog {
+  --battle-guide-top:clamp(16px,7vh,72px);
+  inset:var(--battle-guide-top) 0 auto; margin:0 auto;
+  height:auto; min-height:0;
+  max-height:calc(100dvh - var(--battle-guide-top) - 24px);
+}
+body #battleModeGuideDialog .battle-mode-guide-panel { flex:0 1 auto; min-height:0; }
+/* 상세 설정은 배경 장식 없이 제목·구분선·입력 영역으로 정렬한다. */
+body #dpsUnitSlotModal .ub-edit-section > h3,
+body #dpsUnitSlotModal .ub-expansion-head {
+  height:auto; min-height:0; margin:0 0 14px; padding:0 0 10px;
+  background:transparent; background-image:none; border:0;
+  border-bottom:1px solid var(--studio-head-line); border-radius:0;
+  box-shadow:none; overflow:visible; clip-path:none;
+}
+body #dpsUnitSlotModal .ub-edit-section > h3::before,
+body #dpsUnitSlotModal .ub-edit-section > h3::after,
+body #dpsUnitSlotModal .ub-expansion-head::before,
+body #dpsUnitSlotModal .ub-expansion-head::after { content:none; }
+body #dpsUnitSlotModal .ub-expansion-head { margin-bottom:0; padding-bottom:0; border-bottom:0; }
+body #dpsUnitSlotModal .ub-expansion-head h4 { background:transparent; box-shadow:none; }
+@media(max-width:600px) {
+  body #basicSettingsPanel2 { padding:10px; }
+  body #basicSettingsPanel2 .basic-settings-box-header { padding:10px 12px; }
+  body #dpsUnitSlotModal .ub-expansion-head { flex-wrap:wrap; }
+  body #dpsUnitSlotModal .ub-expansion-head > div { flex-basis:180px; }
+}
+
+/* ── 07 · 목표·투자 제한·최적화 화면 ── */
+body .settings-polish .basic-goal-section-heading {
+  min-height:28px; margin:0 12px 12px; padding:0 0 8px;
+  background:transparent; border:0; border-bottom:1px solid var(--settings-hairline);
+  border-radius:0; box-shadow:none; color:var(--subhead-text);
+}
+body .settings-polish .basic-goal-section-heading strong {
+  color:inherit; font-size:var(--ui-sub-title-font); font-weight:500; line-height:1.25;
+}
+/* 하나의 헤더 아래 제한/최적화와 목록을 전환한다. */
+body .trait-workspace > .integrated-build-heading { justify-content:space-between; box-sizing:border-box; height:48px !important; min-height:48px !important; max-height:48px !important; }
+body .trait-workspace #traitExpansionToggle { flex:none; margin-left:auto; }
+body .trait-workspace #traitExpansionToggle[hidden] { display:none !important; }
+body .trait-workspace > .trait-utility-panel {
+  margin:0; border:0; border-radius:0; box-shadow:none; background:transparent;
+}
+body .trait-workspace .trait-limit-grid,
+body .trait-workspace .trait-optimizer-panel .trait-board-control-grid { grid-template-columns:minmax(0,1fr); }
+body .trait-workspace .trait-limit-group + .trait-limit-group,
+body .trait-workspace .trait-optimizer-panel .trait-optimizer-row + .trait-optimizer-row {
+  border-left:0; border-top:1px solid var(--ui-integrated-head-line);
+}
+
+/* 투자 제한: PC 두 열, 모바일 한 열; 최적화 범위는 세로 배치. */
+body .trait-workspace .trait-limit-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+body .trait-workspace .trait-limit-group + .trait-limit-group {
+  border-top:0; border-left:1px solid var(--ui-integrated-head-line);
+}
+body.is-mobile .trait-workspace .trait-limit-grid,
+body.is-narrow-mobile .trait-workspace .trait-limit-grid { grid-template-columns:minmax(0,1fr); }
+body.is-mobile .trait-workspace .trait-limit-group + .trait-limit-group,
+body.is-narrow-mobile .trait-workspace .trait-limit-group + .trait-limit-group {
+  border-left:0; border-top:1px solid var(--ui-integrated-head-line);
 }

@@ -2,7 +2,9 @@
 /* ── 01 · 필드 등록·공통 상태 ── */
 // 실행문과 상태 초기화는 기존 순서를 유지한다. 함수 선언은 파일 전체에 호이스팅된다.
 Object.assign(FIELD_REGISTRY, Object.fromEntries(dpsBaseUnitFieldEntries()));
+const DPS_BASE_UNIT_QUANTITY_IDS=new Set(dpsBaseUnitQuantityIds());
 const DPS_BASE_UNIT_ENHANCE_IDS=new Set(dpsBaseUnitList().map(dpsBaseUnitEnhanceInputId));
+const DPS_BASE_UNIT_EXPANDABLE_IDS=new Set(dpsBaseUnitList().filter(dpsBaseUnitAllowsSlotExpansion).map(unit=>unit.id));
 const DPS_BASE_UNIT_ADVANCED_OPTION_UNITS=dpsBaseUnitList().filter(dpsBaseUnitSupportsAdvancedOptions);
 const DPS_BASE_UNIT_LIMIT_BREAK_IDS=new Set(DPS_BASE_UNIT_ADVANCED_OPTION_UNITS.map(dpsBaseUnitLimitBreakInputId));
 const DPS_BASE_UNIT_JEWEL_IDS=new Set(DPS_BASE_UNIT_ADVANCED_OPTION_UNITS.map(dpsBaseUnitJewelInputId));
@@ -67,8 +69,12 @@ function normalizeDpsBaseUnitSlotExpansions(value){
     try{ source=JSON.parse(source || '[]'); }catch{ source=source.split('|'); }
   }
   if(!Array.isArray(source)) source=[];
-  const valid=new Set(dpsBaseUnitList().filter(dpsBaseUnitAllowsSlotExpansion).map(unit=>unit.id));
-  return source.map(id=>String(id || '').trim()).filter((id,index,list)=>valid.has(id) && list.indexOf(id)===index);
+  const seen=new Set();
+  return source.map(id=>String(id || '').trim()).filter(id=>{
+    if(!DPS_BASE_UNIT_EXPANDABLE_IDS.has(id) || seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
 }
 
 function serializeDpsBaseUnitSlotExpansions(value){
@@ -112,7 +118,7 @@ function emptyDpsBaseUnitSlots(){
 }
 
 function normalizeDpsBaseUnitSlotValues(value){
-  const validIds=new Set(dpsBaseUnitList().map(unit=>unit.id));
+  const validIds=dpsBaseUnitIdSet();
   const source=Array.isArray(value) ? value : String(value ?? '').split(DPS_BASE_UNIT_SLOT_SEPARATOR);
   const slots=emptyDpsBaseUnitSlots();
   const used=new Set();
@@ -155,7 +161,8 @@ function currentDpsBaseUnitSlots(){
 }
 
 function appendDpsBaseUnitStoreInput(store,id,value,dataName,unitId){
-  if($(id)) return $(id);
+  const existing=$(id);
+  if(existing) return existing;
   const input=document.createElement('input');
   input.type='hidden';
   input.id=id;
@@ -165,9 +172,12 @@ function appendDpsBaseUnitStoreInput(store,id,value,dataName,unitId){
   return input;
 }
 
+let readyDpsBaseUnitStore=null;
+let readyDpsBaseUnitStoreCount=0;
 function ensureDpsBaseUnitStore(){
   const store=$('dpsBaseUnitQuantityStore');
   if(!store) return;
+  if(store===readyDpsBaseUnitStore && store.childElementCount===readyDpsBaseUnitStoreCount) return;
   dpsBaseUnitList().forEach(unit=>{
     if(dpsBaseUnitHasQuantity(unit)) appendDpsBaseUnitStoreInput(store,dpsBaseUnitQuantityInputId(unit),'0','data-dps-base-unit-quantity-store',unit.id);
     appendDpsBaseUnitStoreInput(store,dpsBaseUnitEnhanceInputId(unit),'0','data-dps-base-unit-enhance-store',unit.id);
@@ -177,6 +187,8 @@ function ensureDpsBaseUnitStore(){
       appendDpsBaseUnitStoreInput(store,dpsBaseUnitVoidPowerInputId(unit),'OFF','data-dps-base-unit-void-power-store',unit.id);
     }
   });
+  readyDpsBaseUnitStore=store;
+  readyDpsBaseUnitStoreCount=store.childElementCount;
 }
 
 function dpsBaseUnitStoreInput(field,unit){
@@ -194,9 +206,16 @@ function sortedDpsBaseUnits(){
   const units=dpsBaseUnitList();
   const gradeOrder=dpsBaseUnitGradeOrder();
   const raceOrder=dpsBaseUnitRaceOrder();
-  const orderIndex=(order,value)=>{ const index=order.indexOf(value); return index<0 ? order.length : index; };
+  const gradeRank=new Map();
+  const raceRank=new Map();
+  const originalRank=new Map();
+  gradeOrder.forEach((grade,index)=>{if(!gradeRank.has(grade)) gradeRank.set(grade,index);});
+  raceOrder.forEach((race,index)=>{if(!raceRank.has(race)) raceRank.set(race,index);});
+  units.forEach((unit,index)=>{if(!originalRank.has(unit)) originalRank.set(unit,index);});
   return units.slice().sort((a,b)=>
-    orderIndex(gradeOrder,a.grade)-orderIndex(gradeOrder,b.grade) || orderIndex(raceOrder,a.raceGroup)-orderIndex(raceOrder,b.raceGroup) || units.indexOf(a)-units.indexOf(b)
+    (gradeRank.get(a.grade) ?? gradeOrder.length)-(gradeRank.get(b.grade) ?? gradeOrder.length) ||
+    (raceRank.get(a.raceGroup) ?? raceOrder.length)-(raceRank.get(b.raceGroup) ?? raceOrder.length) ||
+    originalRank.get(a)-originalRank.get(b)
   );
 }
 

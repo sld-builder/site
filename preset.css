@@ -1,4 +1,5 @@
-/* 프리셋 전용 스타일 · 기존 style.css 선택자를 이동 */
+/* 프리셋 전용 스타일: 기존 기능과 캐스케이드 순서를 유지한다. */
+/* ── 01 · 입력·선택·저장 명령 ── */
 .col-left>.basic-goal-cards:has(.trait-preset-panel.is-menu-open){overflow:visible;}
 .basic-settings-info-panel>.trait-preset-panel{min-width:0;grid-column:1/-1;border-bottom:1px solid var(--ui-integrated-head-line);}
 body .trait-preset-body{display:grid;grid-template-columns:minmax(0,1fr);align-items:stretch;border-radius:0 0 calc(var(--ui-panel-radius) - 1px) calc(var(--ui-panel-radius) - 1px);background:var(--ui-panel-body-bg);position:relative;isolation:isolate;container-type:inline-size;gap:0;padding:0;overflow:hidden;}
@@ -100,6 +101,7 @@ body .trait-preset-panel.is-migration-pending .trait-preset-body .btn.is-update>
 @media(prefers-reduced-motion:reduce){
   body .trait-preset-panel .trait-preset-body .btn.preset-command{transition:none;}
 }
+/* ── 02 · 프리셋 편집·백업 대화상자 ── */
 .trait-preset-modal{position:relative;z-index:1;width:min(420px,calc(100vw - 28px));border:1px solid var(--ui-modal-border);border-radius:var(--ui-modal-radius);background:var(--ui-panel-body-bg);box-shadow:var(--ui-modal-shadow);overflow:hidden;}
 .trait-preset-modal-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 12px;height:auto;min-height:var(--ui-integrated-head-height);max-height:none;background:var(--ui-integrated-head-bg);border-bottom:1px solid var(--ui-integrated-head-line);color:var(--ui-integrated-head-text);box-shadow:none;}
 .trait-preset-modal-heading{display:flex;align-items:center;gap:9px;min-width:0;}
@@ -209,7 +211,7 @@ body .settings-polish .trait-preset-form-card :is(.trait-preset-form-heading,.tr
 body .settings-polish .trait-preset-actions .preset-command-main{min-width:0;}
 body .settings-polish .trait-preset-actions .preset-command-main :is(strong,small){white-space:normal;overflow-wrap:anywhere;}
 
-/* 프리셋: 클리어 기록 조회·복사 전용 모달 */
+/* ── 03 · 클리어 기록 조회·복사 ── */
 .trait-clear-record-overlay{position:fixed;inset:0;z-index:20001;display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:12px;background:var(--ui-modal-backdrop-bg);backdrop-filter:var(--ui-modal-backdrop-blur);-webkit-backdrop-filter:var(--ui-modal-backdrop-blur);}
 .trait-clear-record-overlay[hidden]{display:none;}
 body.trait-clear-record-open{overflow:hidden;}

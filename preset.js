@@ -58,6 +58,7 @@ const INTERNAL_VALUE_IDS=new Set([
   'dt','ep','rAP','rTD','rUA','rHarmony'
 ]);
 const IGNORED_SAVED_VALUE_IDS=[...(DPS_CONFIG.state.skipElementIds || []),...INTERNAL_VALUE_IDS,...Object.keys(REMOVED_PRESET_VALUE_LABELS)];
+const STORAGE_SKIP_ELEMENT_IDS=new Set(DPS_CONFIG.state.skipElementIds || []);
 const NORMALIZED_MONEY_VALUE_IDS=new Set(['sp','xp','bxp','rp','soul']);
 const SHARD_VALUE_IDS=new Set(['coralShard','aiurShard','xerusShard']);
 function normalizeMoneyStorageValue(value, id=''){
@@ -92,9 +93,8 @@ function userStateElementIds(){ return storageElementIds().filter(id=>USER_STATE
 const storageState={isLoading:false,suppressSave:false,factoryState:null,saveFailCount:0,hasSavedState:false,presetMutationInProgress:false};
 function isStorageLocked(){return storageState.isLoading || storageState.suppressSave;}
 function storageElementIds(){
-  const skip=new Set(DPS_CONFIG.state.skipElementIds || []);
   return Array.from(qsa('input[id],select[id],textarea[id]'))
-    .filter(el=>el.id && el.type!=='file' && !skip.has(el.id))
+    .filter(el=>el.id && el.type!=='file' && !STORAGE_SKIP_ELEMENT_IDS.has(el.id))
     .map(el=>el.id);
 }
 function elementDefaultValue(el){
@@ -115,7 +115,7 @@ function normalizeStoredElementValue(id, value){
   if(id==='specDpsSpeedMode' || id==='dpsBaseUnitSpeedMode') return normalizeOnOffValue(value,'OFF');
   if(id==='specBoardPierce') return normalizeSpecBoardPierceValue(value);
   if(id==='donationBuffType') return normalizeDonationBuffType(value);
-  if(dpsBaseUnitQuantityIds().includes(id)) return normalizeDpsBaseUnitQuantityStorageValue(value);
+  if(DPS_BASE_UNIT_QUANTITY_IDS.has(id)) return normalizeDpsBaseUnitQuantityStorageValue(value);
   if(DPS_BASE_UNIT_ENHANCE_IDS.has(id)) return normalizeDpsBaseUnitEnhanceValue(value);
   if(DPS_BASE_UNIT_LIMIT_BREAK_IDS.has(id)) return normalizeDpsBaseUnitLimitBreakValue(value);
   if(DPS_BASE_UNIT_JEWEL_IDS.has(id)) return normalizeDpsJewelName(value);

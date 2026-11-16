@@ -1203,8 +1203,15 @@ function dpsBaseUnitVoidPowerOn(unitOrId){
   const unit=resolveDpsBaseUnit(unitOrId);
   return !!unit && dpsBaseUnitSupportsAdvancedOptions(unit) && dpsBaseUnitVoidPowerEnabledIds().has(unit.id);
 }
+let dpsBaseUnitIdCacheSource=null;
+let dpsBaseUnitIdCache=null;
 function dpsBaseUnitIdSet(){
-  return new Set(dpsBaseUnitList().map(unit=>unit.id));
+  const units=dpsBaseUnitList();
+  if(units!==dpsBaseUnitIdCacheSource){
+    dpsBaseUnitIdCacheSource=units;
+    dpsBaseUnitIdCache=new Set(units.map(unit=>unit.id));
+  }
+  return dpsBaseUnitIdCache;
 }
 function normalizeDpsBaseUnitsValue(value){
   const allId=dpsBaseUnitAllId();
@@ -2179,14 +2186,19 @@ function effectiveSP(){
   return Math.max(0, v('sp') + effectiveSpBankBonus() - donationBuffSpCost());
 }
 function rpPierceBonus(){return Math.max(0, Math.min(20, INV[130]||0));}
+let optimizationTierIndex=null;
 let allowedRowsByTierCacheTarget='';
 let allowedRowsByTierCache=new Set();
 function allowedRowsByTier(){
   const target=vs('optTier')||'루키';
   if(target===allowedRowsByTierCacheTarget) return allowedRowsByTierCache;
-  const idx=OPTIMIZATION_TIERS.indexOf(target);
+  if(!optimizationTierIndex) optimizationTierIndex=new Map(OPTIMIZATION_TIERS.map((tier,index)=>[tier,index]));
+  const targetIndex=optimizationTierIndex.get(target) ?? -1;
   allowedRowsByTierCacheTarget=target;
-  allowedRowsByTierCache=new Set(TRAITS.filter(t=>OPTIMIZATION_TIERS.indexOf(t[2])>=0 && OPTIMIZATION_TIERS.indexOf(t[2])<=idx).map(t=>t[0]));
+  allowedRowsByTierCache=new Set(TRAITS.filter(t=>{
+    const tierIndex=optimizationTierIndex.get(t[2]) ?? -1;
+    return tierIndex>=0 && tierIndex<=targetIndex;
+  }).map(t=>t[0]));
   return allowedRowsByTierCache;
 }
 function fmt(n,d=1){return n==null||isNaN(n)?'—':parseFloat(n.toFixed(d)).toLocaleString('ko-KR');}
