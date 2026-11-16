@@ -719,14 +719,14 @@ body .trait-build-merged-panel > .integrated-build-heading .optimizer-head-title
 body .integrated-build-heading::before { display:none; }
 body .hdr.app-header { min-height:44px; padding:6px var(--studio-header-pad); border-bottom:0; box-shadow:none; }
 body .hdr-title-wrap h1 { font-size:var(--studio-header-font); font-weight:600; line-height:1.4; letter-spacing:0; }
-body :is(.basic-goal-section-heading,.rune-card-heading,.buff-config-heading,.basic-settings-inline-title,
+body :is(.rune-card-heading,.buff-config-heading,
   .ub-collection-head,.unit-sanctuary-heading,.trait-scope-heading,.ub-edit-section > h3,.ub-expansion-head) {
   min-height:36px; height:auto; max-height:none; display:flex; align-items:center; gap:8px;
   padding:8px 12px; margin:0 0 8px; background:transparent;
   border:0; border-bottom:1px solid var(--ui-line-strong); border-radius:0; box-shadow:none;
   color:var(--ui-integrated-head-text); font-size:var(--studio-subheader-font); font-weight:600; line-height:1.4; letter-spacing:0;
 }
-body :is(.basic-goal-section-copy strong,.buff-config-heading strong,.trait-scope-heading strong,
+body :is(.buff-config-heading strong,.trait-scope-heading strong,
   .ub-collection-head h3,.unit-sanctuary-heading h3,.ub-expansion-head h4) {
   margin:0; font-family:var(--font-main); font-size:var(--studio-subheader-font); font-weight:600;
   line-height:1.4; letter-spacing:0; color:var(--ui-integrated-head-text);
@@ -789,15 +789,6 @@ body #dpsBaseUnitSummary .dps-base-unit-results {
 }
 body #dpsBaseUnitSlotStack .unit-slot-cards-grid { gap:16px; }
 body #dpsBaseUnitSlotStack .unit-slot-card-main { background:transparent; }
-body #basicSettingsPanel2 .basic-settings-inline-section { background:transparent; }
-body #basicSettingsPanel2 .basic-settings-inline-section + .basic-settings-inline-section {
-  margin-top:24px; padding-top:24px; border-top:2px solid var(--ui-line-strong);
-}
-body #basicSettingsPanel2 .basic-settings-inline-title {
-  margin:0 12px 16px; padding:12px 0; min-height:44px;
-  font-size:calc(15px * var(--app-font-scale)); font-weight:600; line-height:1.4;
-  border-bottom:1px solid var(--ui-line-strong); color:var(--ui-integrated-head-text);
-}
 body #basicSettingsPanel2 :is(.bus-cut-card,.final-damage-card) {
   border:0; border-radius:0; box-shadow:none; background:transparent;
 }
@@ -819,7 +810,6 @@ body :is(.trait-preset-modal-close,.unit-slot-modal-close,.dps-compare-close) {
 body #battleModeGuideDialog .trait-preset-modal-close {
   width:28px; min-width:28px; height:28px; min-height:28px;
 }
-body #basicSettingsPanel2 .basic-settings-inline-title { min-height:36px; padding-block:8px; font-size:calc(13px * var(--app-font-scale)); }
 
 body .right-analytics-workspace #dpsBaseUnitSummary .board-context-header > div { border:0; }
 body .right-workspace-head { padding-block:6px !important; }
@@ -1024,7 +1014,6 @@ body .workspace-section-title {
   letter-spacing:0;
 }
 body .basic-info-resource-card, body .goal-settings-card { min-width:0; }
-body .settings-polish .basic-goal-section-heading { margin-bottom:8px; }
 body .settings-polish .basic-info-lane-group + .basic-info-lane-group { margin-top:12px; padding-top:16px; }
 body .trait-build-merged-panel .trait-build-section + .trait-build-section {
   margin-top:8px; border-top:1px solid var(--ui-unified-line-strong);
@@ -1111,7 +1100,7 @@ body :is(.basic-goal-brand-copy strong,.right-workspace-copy strong,.optimizer-h
   .trait-utility-section-label strong,.trait-preset-modal-head h2,.unit-slot-modal-heading strong,.dps-compare-header h2) {
   color:#dbe4ef;
 }
-body :is(.basic-goal-section-heading,.rune-card-heading,.buff-config-heading,.basic-settings-inline-title,
+body :is(.rune-card-heading,.buff-config-heading,
   .ub-collection-head,.unit-sanctuary-heading,.trait-scope-heading,.ub-edit-section > h3,.ub-expansion-head) {
   background:#0c0f13; border-bottom-color:#252c35;
 }
@@ -1232,23 +1221,29 @@ body .hdr.app-header{padding-right:10px;}
 
 /* ── 06 · 버스 설정·성소 스킬·상세 대화상자 ── */
 body #basicSettingsPanel2 {
-  padding:12px;
+  padding:0;
 }
 body #basicSettingsPanel2 .basic-settings-inline-section {
-  min-width:0; padding:0; border:1px solid var(--studio-head-line);
-  border-radius:10px; background:var(--ui-panel-body-bg); overflow:hidden;
+  min-width:0; position:relative; margin:0; padding:0; border:0;
+  border-radius:0; background:transparent; box-shadow:none; overflow:visible;
 }
 body #basicSettingsPanel2 .basic-settings-inline-section + .basic-settings-inline-section {
-  margin-top:16px; padding-top:0; border-top:1px solid var(--studio-head-line);
+  margin-top:22px; padding-top:22px;
+}
+/* 두 설정 영역의 분리선은 한 번만 표시하고 양끝을 본문 가장자리에서 띄운다. */
+body #basicSettingsPanel2 .basic-settings-inline-section + .basic-settings-inline-section::before {
+  content:""; position:absolute; top:0; left:14px; right:14px;
+  height:1px; background:var(--ui-line-strong); pointer-events:none;
 }
 body #basicSettingsPanel2 .basic-settings-box-header {
-  display:flex; align-items:center; min-height:40px; padding:10px 14px;
-  border-bottom:1px solid var(--studio-head-line); background:var(--studio-head-bg);
+  display:block; min-height:0; margin:0 14px; padding:14px 0 0;
+  border:0; border-radius:0; background:transparent; box-shadow:none;
 }
 body #basicSettingsPanel2 .basic-settings-inline-title {
   display:block; width:auto; min-height:0; margin:0; padding:0;
   border:0; border-radius:0; background:transparent; box-shadow:none;
-  font-size:calc(13px * var(--app-font-scale)); line-height:1.4;
+  color:var(--ui-integrated-head-text); font-size:calc(15px * var(--app-font-scale));
+  font-weight:500; line-height:1.4;
 }
 body #basicSettingsPanel2 .basic-settings-inline-title::before,
 body #basicSettingsPanel2 .basic-settings-inline-title::after { content:none; }
@@ -1275,21 +1270,13 @@ body #dpsUnitSlotModal .ub-expansion-head::after { content:none; }
 body #dpsUnitSlotModal .ub-expansion-head { margin-bottom:0; padding-bottom:0; border-bottom:0; }
 body #dpsUnitSlotModal .ub-expansion-head h4 { background:transparent; box-shadow:none; }
 @media(max-width:600px) {
-  body #basicSettingsPanel2 { padding:10px; }
-  body #basicSettingsPanel2 .basic-settings-box-header { padding:10px 12px; }
+  body #basicSettingsPanel2 .basic-settings-box-header { margin:0 10px; padding:12px 0 0; }
+  body #basicSettingsPanel2 .basic-settings-inline-section + .basic-settings-inline-section::before { left:10px; right:10px; }
   body #dpsUnitSlotModal .ub-expansion-head { flex-wrap:wrap; }
   body #dpsUnitSlotModal .ub-expansion-head > div { flex-basis:180px; }
 }
 
 /* ── 07 · 목표·투자 제한·최적화 화면 ── */
-body .settings-polish .basic-goal-section-heading {
-  min-height:28px; margin:0 12px 12px; padding:0 0 8px;
-  background:transparent; border:0; border-bottom:1px solid var(--settings-hairline);
-  border-radius:0; box-shadow:none; color:var(--subhead-text);
-}
-body .settings-polish .basic-goal-section-heading strong {
-  color:inherit; font-size:var(--ui-sub-title-font); font-weight:500; line-height:1.25;
-}
 /* 하나의 헤더 아래 제한/최적화와 목록을 전환한다. */
 body .trait-workspace > .integrated-build-heading { justify-content:space-between; box-sizing:border-box; height:48px !important; min-height:48px !important; max-height:48px !important; }
 body .trait-workspace #traitExpansionToggle { flex:none; margin-left:auto; }

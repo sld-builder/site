@@ -568,9 +568,9 @@ body .right-workspace-copy strong{color:var(--ui-integrated-head-text);font-size
 .basic-rune-panel .rune-unified-card>.integrated-content{display:block;min-width:0;}
 .basic-rune-panel .rune-unified-card>.integrated-content[hidden]{display:none;}
 .col-left>.basic-goal-cards.integrated-card>.basic-settings-info-panel.is-active{display:grid;grid-template-columns:minmax(0,1fr);align-items:stretch;}
-.basic-settings-info-content{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));min-width:0;align-items:stretch;}
+.basic-settings-info-content{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));min-width:0;align-items:stretch;padding-top:18px;}
 @media(max-width:700px){
-  .basic-settings-info-content{grid-template-columns:minmax(0,1fr);}
+  .basic-settings-info-content{grid-template-columns:minmax(0,1fr);row-gap:18px;}
 }
 .basic-tab-sanctuary,.basic-tab-bus{min-width:0;width:100%;}
 .basic-tab-sanctuary .skill-damage-layout{width:100%;}
@@ -701,30 +701,28 @@ input[readonly],input:disabled,select:disabled,body:not(.is-mobile) .enchant-res
 .col-left > .basic-goal-cards > .basic-goal-title{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;padding:8px 10px;border:0;border-radius:0;box-sizing:border-box;height:auto;min-height:var(--ui-integrated-head-height);max-height:none;background:var(--ui-integrated-head-bg);border-bottom:1px solid var(--ui-integrated-head-line);color:var(--ui-integrated-head-text);margin:0;}
 .basic-goal-brand{display:flex;align-items:center;gap:10px;min-width:0;}
 /* 버스 성소: 기존 카드와 설정 입력을 기본 설정 탭의 본문에 통합 */
-.basic-settings-bus-panel{min-width:0;padding:0 0 12px;background:var(--ui-panel-body-bg);}
-.basic-settings-inline-section{min-width:0;padding:0;background:var(--ui-panel-body-bg);}
-.basic-settings-inline-section+.basic-settings-inline-section{border-top:1px solid var(--ui-integrated-head-line);}
-.basic-settings-inline-title{margin:0;padding:10px 13px;border-bottom:1px solid var(--ui-integrated-head-line);background:var(--ui-integrated-subhead-bg);color:var(--ui-integrated-subhead-text);font-size:var(--ui-sub-title-font);font-weight:400;}
-.basic-settings-bus-panel .basic-tab-bus .bus-cut-card{padding:16px 18px;}
+.basic-settings-bus-panel{min-width:0;padding:0;background:var(--ui-panel-body-bg);}
+.basic-settings-bus-panel .basic-tab-bus .bus-cut-card{box-sizing:border-box;min-width:0;max-width:100%;padding:12px 14px;}
 .basic-settings-bus-panel .basic-tab-bus .bus-cut-mode{border:0;border-bottom:1px solid #34465a;border-radius:0;background:transparent;color:#e3efff;}
 .basic-settings-bus-panel .basic-tab-bus .bus-cut-stage{border:0;border-bottom:1px solid #263546;border-radius:0;background:transparent;}
 .basic-settings-bus-panel .basic-tab-bus .bus-cut-value{border:1px solid #324154;background:#101722;}
 .basic-settings-bus-panel .basic-tab-sanctuary .skill-setting-panel,.basic-settings-bus-panel .basic-tab-sanctuary .skill-result-panel{padding:16px 18px;}
 @media(max-width:600px){
-  .basic-settings-bus-panel .basic-tab-bus .bus-cut-card,.basic-settings-bus-panel .basic-tab-sanctuary .skill-setting-panel,.basic-settings-bus-panel .basic-tab-sanctuary .skill-result-panel{padding:12px 10px;}
+  .basic-settings-bus-panel .basic-tab-bus .bus-cut-card{padding:12px 10px;}
+  .basic-settings-bus-panel .basic-tab-sanctuary .skill-setting-panel,.basic-settings-bus-panel .basic-tab-sanctuary .skill-result-panel{padding:12px 10px;}
 }
 .basic-goal-brand-mark{display:grid;place-items:center;box-sizing:border-box;flex:0 0 32px;width:32px;height:28px;min-width:32px;padding:0;border:0;border-radius:0;background:transparent;color:var(--ui-header-mark-color);font-size:17.25px;line-height:1;box-shadow:none;}
 .basic-goal-brand-copy{display:grid;gap:4px;min-width:0;}
 .basic-goal-brand-copy strong{color:var(--ui-integrated-head-text);font-size:var(--ui-main-title-font);font-weight:var(--ui-main-title-weight);line-height:1.15;white-space:nowrap;text-shadow:none;}
 .col-left > .basic-goal-cards > .integrated-content > .sg,.col-left > .basic-goal-cards .basic-settings-info-content > .sg{min-width:0;margin:0;overflow:visible;border:0;border-radius:0;box-shadow:none;padding:0;background:transparent;}
-.col-left > .basic-goal-cards > .integrated-content > .sg.goal-settings-card,.col-left > .basic-goal-cards .basic-settings-info-content > .sg.goal-settings-card{border-left:1px solid var(--ui-integrated-head-line);}
-.basic-goal-section-heading{display:flex;align-items:center;min-width:0;min-height:28px;margin:0 12px 12px;padding:10px 0 8px;border-bottom:1px solid var(--settings-hairline,rgba(135,149,172,.16));background:transparent;color:var(--ui-integrated-subhead-text);}
+.col-left > .basic-goal-cards > .integrated-content > .sg.goal-settings-card,.col-left > .basic-goal-cards .basic-settings-info-content > .sg.goal-settings-card{position:relative;}
+/* 프리셋 하단선과 여백으로 분리한 뒤 목표 설정 카드 안쪽에서 세로 구분선을 그린다. */
+.col-left > .basic-goal-cards > .integrated-content > .sg.goal-settings-card::before,.col-left > .basic-goal-cards .basic-settings-info-content > .sg.goal-settings-card::before{content:"";position:absolute;pointer-events:none;top:12px;bottom:12px;left:0;width:1px;background:var(--ui-integrated-head-line);}
+.basic-goal-section-heading{display:flex;align-items:center;min-width:0;min-height:28px;height:auto;max-height:none;gap:8px;margin:0 12px 12px;padding:0 0 8px;border:0;border-bottom:1px solid var(--settings-hairline,rgba(135,149,172,.16));border-radius:0;background:transparent;box-shadow:none;color:var(--subhead-text);font-size:var(--studio-subheader-font);font-weight:600;line-height:1.4;letter-spacing:0;}
 .basic-goal-section-copy{display:grid;min-width:0;gap:0;}
-.basic-goal-section-copy strong{color:#edf6ff;font-size:var(--ui-sub-title-font);font-weight:500;line-height:1.25;}
+.basic-goal-section-copy strong{margin:0;color:inherit;font-family:var(--font-main);font-size:var(--ui-sub-title-font);font-weight:500;line-height:1.25;letter-spacing:0;}
 @media(max-width:700px){
-  .col-left > .basic-goal-cards > .integrated-content > .sg.goal-settings-card,.col-left > .basic-goal-cards .basic-settings-info-content > .sg.goal-settings-card{border-left:0;border-top:1px solid var(--ui-integrated-head-line);}
-}
-@media (max-width:700px){
+  .col-left > .basic-goal-cards > .integrated-content > .sg.goal-settings-card::before,.col-left > .basic-goal-cards .basic-settings-info-content > .sg.goal-settings-card::before{top:-9px;bottom:auto;left:12px;right:12px;width:auto;height:1px;}
   .col-left > .basic-goal-cards{grid-template-columns:minmax(0,1fr);column-gap:0;row-gap:0;padding:0;}
   .col-left > .basic-goal-cards > .basic-goal-title{flex-wrap:wrap;row-gap:8px;height:auto;min-height:var(--ui-integrated-head-height);max-height:none;background:var(--ui-integrated-head-bg);border-bottom:1px solid var(--ui-integrated-head-line);color:var(--ui-integrated-head-text);margin:0;}
   .col-left > .basic-goal-cards > .integrated-content > .sg,.col-left > .basic-goal-cards .basic-settings-info-content > .sg{border:0;border-radius:0;box-shadow:none;padding:0 0 16px;background:transparent;}
@@ -952,7 +950,7 @@ body .clean-rune-card > .sg-title > span{min-width:0;overflow:hidden;text-overfl
 body.is-tabbed .mobile-page > .clean-rune-card > .sg-title{max-height:none;overflow:visible;line-height:1.15;}
 /* 성소 스킬·버스 승객: 기본 설정의 내부 탭 구성 */
 body .basic-tab-sanctuary .skill-damage-layout{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);gap:10px;align-items:start;}
-body .basic-tab-sanctuary .skill-setting-panel,body .basic-tab-sanctuary .skill-result-panel,body .basic-tab-bus .bus-cut-card{min-width:0;border:0;border-radius:0;box-shadow:none;padding:16px;background:transparent;}
+body .basic-tab-sanctuary .skill-setting-panel,body .basic-tab-sanctuary .skill-result-panel{min-width:0;border:0;border-radius:0;box-shadow:none;padding:16px;background:transparent;}
 body .basic-tab-sanctuary .skill-result-panel{border-left:1px solid var(--ui-integrated-head-line);border-top:0;}
 body .basic-tab-sanctuary .skill-setting-panel .skill-ir{grid-template-columns:94px minmax(0,1fr);gap:7px;margin-bottom:8px;}
 body .basic-tab-sanctuary .skill-ir label{display:flex;align-items:center;justify-content:center;min-width:0;height:38px;min-height:38px;padding:4px 6px;border:0;border-radius:0;background:transparent;color:var(--field-label-text);font-size:var(--ui-item-label-font);white-space:normal;word-break:keep-all;text-align:center;}
@@ -974,7 +972,7 @@ body .basic-tab-bus .bus-cut-stage,body .basic-tab-bus .bus-cut-value{height:34p
 body .basic-tab-bus .bus-cut-stage{border:1px solid #39424b;background:#0e0f12;color:#cde6ff;}
 body .basic-tab-bus .bus-cut-value{border:1px solid #343b42;background:#0b0c0f;color:#f1f7ff;font-family:Consolas,monospace;}
 @media(max-width:600px){
-  body .basic-tab-sanctuary .skill-setting-panel,body .basic-tab-sanctuary .skill-result-panel,body .basic-tab-bus .bus-cut-card{border:0;border-radius:0;box-shadow:none;padding:12px 10px;background:transparent;}
+  body .basic-tab-sanctuary .skill-setting-panel,body .basic-tab-sanctuary .skill-result-panel{border:0;border-radius:0;box-shadow:none;padding:12px 10px;background:transparent;}
   body .basic-tab-sanctuary .skill-damage-layout{grid-template-columns:minmax(0,1fr);gap:0;align-items:stretch;}
   body .basic-tab-sanctuary .skill-result-panel{border-left:0;border-top:1px solid var(--ui-integrated-head-line);}
   body .basic-tab-bus .bus-cut-group{grid-template-columns:minmax(0,1fr);gap:6px;}
@@ -1262,7 +1260,6 @@ body.is-mobile .zero-rank-result-card b i{margin:0;line-height:1;transform:none;
 .zero-rank-result-card.zero-rank-final b i,.zero-rank-result-card.zero-rank-final .zero-target-rank{display:none;}
 .zero-rank-result-card.zero-rank-upgrade .zero-current-rank,.zero-rank-result-card.zero-rank-upgrade .zero-target-rank,.zero-rank-result-card.zero-rank-same .zero-current-rank,.zero-rank-result-card.zero-rank-same .zero-target-rank{color:#e6edf7;}
 /* 버스·성소·더제로: 표와 접기 제목의 얇은 경계 */
-body .settings-polish #basicSettingsPanel2 .basic-settings-inline-title{font-weight:500;}
 body .settings-polish #basicSettingsPanel2 .bus-cut-row{box-shadow:none;border-color:var(--settings-hairline);}
 body .settings-polish #basicSettingsPanel2 :is(.bus-cut-stage,.bus-cut-value){min-width:0;white-space:normal;overflow-wrap:anywhere;font-variant-numeric:tabular-nums;}
 body .settings-polish #basicSettingsPanel2 .skill-damage-list :is(th,td){border-color:var(--settings-hairline);}
